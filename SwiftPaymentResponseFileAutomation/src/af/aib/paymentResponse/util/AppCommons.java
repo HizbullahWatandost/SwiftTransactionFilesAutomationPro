@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import af.aib.paymentResponse.config.AppConfig;
 import af.aib.paymentResponse.log.ActivityLogger;
 import af.aib.paymentResponse.model.ResponseFile;
+import af.aib.paymentResponse.model.TransactionFile;
 
 /**
  * This class contains all the common methods used within the application
@@ -506,6 +507,8 @@ public class AppCommons {
 					.parseInt(fileContent.substring(fileContent.indexOf("<OrgnlNbOfTxs>") + "<OrgnlNbOfTxs>".length(),
 							fileContent.indexOf("</OrgnlNbOfTxs>")));
 		}
+		
+		responseFile.setFileName(Paths.get(filePath).getFileName().toString());
 		responseFile.setOrgnlMsgId(orgnlMsgId);
 		responseFile.setOrgnlNbOfTxs(orgnlNbOfTxs);
 
@@ -603,6 +606,44 @@ public class AppCommons {
 			ActivityLogger.logActivity(loggMsg);
 		}
 		return orgnlMsgId;
+	}
+	
+	
+	public static TransactionFile getTransactionFileProperties(String filePath) {
+		
+		TransactionFile transactionFile = new TransactionFile();
+		String fileContent = AppCommons.readFileAllContent(filePath);
+
+		String fileName = "";
+		String orgnlMsgId = "";
+		int orgnlNbOfTxs = 0;
+
+		fileName = Paths.get(filePath).getFileName().toString();
+		
+
+		if(fileContent.contains("<OrgnlMsgId>")) {
+			orgnlMsgId = fileContent.substring(fileContent.indexOf("<OrgnlMsgId>") + "<OrgnlMsgId>".length(),
+					fileContent.indexOf("</OrgnlMsgId>"));
+		}
+		
+		transactionFile.setOrgnlMsgId(orgnlMsgId);
+		
+		// UNDP file
+		if (fileContent.contains("<TxInfAndSts>")) {
+			orgnlNbOfTxs = fileContent.split("<TxInfAndSts>").length - 1;
+		}
+		// UNICEF file
+		if (fileContent.contains("<OrgnlPmtInfAndSts>")) {
+			orgnlNbOfTxs = fileContent.split("<OrgnlPmtInfAndSts>").length - 1;
+		}
+		
+		transactionFile.setOrgnlNbOfTxs(orgnlNbOfTxs);
+		
+		transactionFile.setFileName(fileName);
+		transactionFile.setOrgnlMsgId(orgnlMsgId);
+		transactionFile.setOrgnlNbOfTxs(orgnlNbOfTxs);
+
+		return transactionFile;
 	}
 
 }

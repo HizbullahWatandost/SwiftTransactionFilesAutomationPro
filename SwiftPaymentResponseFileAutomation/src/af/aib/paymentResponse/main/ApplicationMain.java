@@ -2,6 +2,9 @@ package af.aib.paymentResponse.main;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import af.aib.paymentResponse.config.AppConfig;
 import af.aib.paymentResponse.config.PathsConfig;
@@ -10,6 +13,7 @@ import af.aib.paymentResponse.etl.FileLoading;
 import af.aib.paymentResponse.etl.FileTransformationAndMerging;
 import af.aib.paymentResponse.log.ActivityLogger;
 import af.aib.paymentResponse.model.ResponseFile;
+import af.aib.paymentResponse.robotcheck.AIBSwiftPaymentFileRobot;
 import af.aib.paymentResponse.util.AppCommons;
 
 /**
@@ -110,6 +114,87 @@ public class ApplicationMain {
 		 * At the end as final output, move all the response files and transaction files in final_output folder
 		 * of each organization. 
 		 */
+		
+		loggMsg = "*****************************************************************************************";
+		System.out.println(loggMsg);
+		ActivityLogger.logActivity(loggMsg);
+		
+		
+		loggMsg = "<<<<< Start of Check by Robot >>>>>";
+		System.out.println(loggMsg);
+		ActivityLogger.logActivity(loggMsg);
+		
+		// Checking UNDP files 
+		System.out.println("UNDP");
+		HashMap<String, Integer> UNDPNoPayments = AIBSwiftPaymentFileRobot.CheckNoOfPaymentsInFile("86154");
+		if(UNDPNoPayments.size() > 0) {
+			
+			UNDPNoPayments.forEach((Key, Value) -> System.out.println(Key +":"+Value));
+		}
+		
+		System.out.println("UNICEF");
+		// Checking UNICEF files 
+		HashMap<String, Integer> UNICEFNoPayments = AIBSwiftPaymentFileRobot.CheckNoOfPaymentsInFile("86570");
+		if(UNICEFNoPayments.size() > 0) {
+			
+			UNICEFNoPayments.forEach((Key, Value) -> System.out.println(Key +":"+Value));
+		}
+		
+		// Checking UNDP files 
+		System.out.println("UNDP");
+		HashMap<String, Integer> UNDPNoTxns = AIBSwiftPaymentFileRobot.CheckNoOfTxnInAckFile("86154");
+		if(UNDPNoTxns.size() > 0) {
+			
+			UNDPNoTxns.forEach((Key, Value) -> System.out.println(Key +":"+Value));
+		}
+		
+		System.out.println("UNICEF");
+		// Checking UNICEF files 
+		HashMap<String, Integer> UNICEFNoTxns = AIBSwiftPaymentFileRobot.CheckNoOfTxnInAckFile("86570");
+		if(UNICEFNoTxns.size() > 0) {
+			
+			UNICEFNoTxns.forEach((Key, Value) -> System.out.println(Key +":"+Value));
+		}
+		
+		loggMsg = "-----------------------------------------------------------------------------------------";
+		System.out.println(loggMsg);
+		ActivityLogger.logActivity(loggMsg);
+		
+		System.out.println("UNDP");
+		ArrayList<ArrayList<String>> UNDPMatchedFiles = AIBSwiftPaymentFileRobot.matchPaymentFileAndAckFilesProperties("86154");
+		
+		for(int i = 0; i < UNDPMatchedFiles.size(); i++) {
+			
+			for(int j = 0; j < UNDPMatchedFiles.get(i).size(); j++) {
+				
+				System.out.print(UNDPMatchedFiles.get(i).get(j) + " - ");
+			}
+			System.out.println();
+		}
+		
+		System.out.println("UNICEF");
+		ArrayList<ArrayList<String>> UNICEFMatchedFiles = AIBSwiftPaymentFileRobot.matchPaymentFileAndAckFilesProperties("86570");
+		for(int i = 0; i < UNICEFMatchedFiles.size(); i++) {
+			
+			for(int j = 0; j < UNICEFMatchedFiles.get(i).size(); j++) {
+				
+				System.out.print(UNICEFMatchedFiles.get(i).get(j)+ " - ");
+			}
+			System.out.println();
+		}
+		
+		loggMsg = "------------------------------------------------------------------------------------------";
+		System.out.println(loggMsg);
+		ActivityLogger.logActivity(loggMsg);
+		
+		
+		loggMsg = "<<<<< End of Check by Robot >>>>>";
+		System.out.println(loggMsg);
+		ActivityLogger.logActivity(loggMsg);
+		
+		loggMsg = "*****************************************************************************************";
+		System.out.println(loggMsg);
+		ActivityLogger.logActivity(loggMsg);
 
 		loggMsg = "#################### <<<>>> End of Today's Swift Response File Merger Automation: "
 				+ AppCommons.getCurrentDateTime() + " <<<>>> ####################";

@@ -3,6 +3,7 @@ package af.aib.paymentResponse.model;
 // The model class for Response file
 public class ResponseFile {
 	
+	private String fileName;
 	// Response file OrgnlMsgId attribute 
 	private String orgnlMsgId;
 	// Response file OrgnlNbOfTxs attribute
@@ -14,10 +15,19 @@ public class ResponseFile {
 	}
 
 	// Parameterized constructor
-	public ResponseFile(String orgnlMsgId, int orgnlNbOfTxs) {
+	public ResponseFile(String fileName, String orgnlMsgId, int orgnlNbOfTxs) {
 		super();
+		this.fileName = fileName;
 		this.orgnlMsgId = orgnlMsgId;
 		this.orgnlNbOfTxs = orgnlNbOfTxs;
+	}
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 
 	public String getOrgnlMsgId() {
@@ -38,8 +48,9 @@ public class ResponseFile {
 
 	@Override
 	public String toString() {
-		return "ResponseFile [orgnlMsgId=" + orgnlMsgId + ", orgnlNbOfTxs=" + orgnlNbOfTxs + "]";
+		return "ResponseFile [fileName=" + fileName + ", orgnlMsgId=" + orgnlMsgId + ", orgnlNbOfTxs=" + orgnlNbOfTxs
+				+ "]";
 	}
-	
+
 	
 }
