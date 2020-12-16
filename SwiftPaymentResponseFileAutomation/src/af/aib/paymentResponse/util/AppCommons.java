@@ -608,7 +608,11 @@ public class AppCommons {
 		return orgnlMsgId;
 	}
 	
-	
+	/**
+	 * This method is used to get transaction or ACK files properties based on file path
+	 * @param filePath
+	 * @return
+	 */
 	public static TransactionFile getTransactionFileProperties(String filePath) {
 		
 		TransactionFile transactionFile = new TransactionFile();

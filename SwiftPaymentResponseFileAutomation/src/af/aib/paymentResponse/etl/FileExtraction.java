@@ -30,11 +30,6 @@ public class FileExtraction {
 	// Logging message
 	private static String loggMsg = "";
 
-	// TODO - create a folder by today date
-	// TODO - move the response files from swift directory to that folder
-	// TODO - If duplicate is found, create a folder duplicate and move the
-	// duplicate file in it.
-
 	/**
 	 * This method is used to extract the Response file from swift based on
 	 * organization id or folder name i.e. 86154

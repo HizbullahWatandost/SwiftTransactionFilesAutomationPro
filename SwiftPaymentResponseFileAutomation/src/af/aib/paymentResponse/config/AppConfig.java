@@ -36,8 +36,6 @@ public class AppConfig {
 		boolean config = false;
 
 		try {
-			// appConfigStream = new FileInputStream(fileName);
-			// appConfigStream = new FileInputStream("/resources/"+fileName);
 			appConfigStream = getClass().getClassLoader().getResourceAsStream(fileName);
 			prop.load(appConfigStream);
 			config = true;

@@ -17,7 +17,9 @@ import af.aib.paymentResponse.robotcheck.AIBSwiftPaymentFileRobot;
 import af.aib.paymentResponse.util.AppCommons;
 
 /**
- * This class the main class which runs the application and other methods are called here.
+ * This class the main class which runs the application and other methods are
+ * called here.
+ * 
  * @author Hizbullah Watandost
  *
  */
@@ -31,6 +33,9 @@ public class ApplicationMain {
 
 	// Logging message
 	private static String loggMsg = "";
+
+	private final static String PAYMENT_SUCCESS_STATUS = "OK (should be sent today)";
+	private final static String PAYMENT_WARNING_STATUS = "WARNING (should be sent tomorrow)";
 
 	public static void main(String[] args) throws IOException {
 		// configuring the path automatically
@@ -99,136 +104,173 @@ public class ApplicationMain {
 		FileTransformationAndMerging.addingClosingTagsToTheTransactionFiles("86154");
 		// Adding closing tags to final UNICEF merged transaction files
 		FileTransformationAndMerging.addingClosingTagsToTheTransactionFiles("86570");
-		
-		// TODO - Robotic Check - Check the files - The number of files should match 
-		/*
-		 * In case of 3 response file, their should be 3 transaction merged files in merged folder 
-		 * Check whether the number of transactions in response files matches with the number of 
-		 * transaction in transaction files or not. 
-		 * Check the transaction codes with the response file and the transaction merged files matches or not
-		 * Check which transactions are missing and display warning message.
-		 * 
-		 * Checks whether the response file or transactions already uploaded in Swift or not. 
-		 * Read data directly from swift 
-		 * 
-		 * At the end as final output, move all the response files and transaction files in final_output folder
-		 * of each organization. 
-		 */
+
+		// TODO - Robotic Check - check the payment files and transaction files, and
+		// find which files should be send
+
 		String paymentLog = "";
 		loggMsg = "*****************************************************************************************";
 		System.out.println(loggMsg);
-		paymentLog += loggMsg +"\n";
-		
-		
+		paymentLog += loggMsg + "\n";
+
 		loggMsg = "<<<<< Start of Check by Robot >>>>>";
 		System.out.println(loggMsg);
-		paymentLog += loggMsg +"\n";
-		
-		/*
-		// Checking UNDP files 
-		System.out.println("UNDP");
-		HashMap<String, Integer> UNDPNoPayments = AIBSwiftPaymentFileRobot.CheckNoOfPaymentsInFile("86154");
-		if(UNDPNoPayments.size() > 0) {
-			
-			UNDPNoPayments.forEach((Key, Value) -> System.out.println(Key +":"+Value));
-		}
-		
-		System.out.println("UNICEF");
-		// Checking UNICEF files 
-		HashMap<String, Integer> UNICEFNoPayments = AIBSwiftPaymentFileRobot.CheckNoOfPaymentsInFile("86570");
-		if(UNICEFNoPayments.size() > 0) {
-			
-			UNICEFNoPayments.forEach((Key, Value) -> System.out.println(Key +":"+Value));
-		}
-		
-		// Checking UNDP files 
-		System.out.println("UNDP");
-		HashMap<String, Integer> UNDPNoTxns = AIBSwiftPaymentFileRobot.CheckNoOfTxnInAckFile("86154");
-		if(UNDPNoTxns.size() > 0) {
-			
-			UNDPNoTxns.forEach((Key, Value) -> System.out.println(Key +":"+Value));
-		}
-		
-		System.out.println("UNICEF");
-		// Checking UNICEF files 
-		HashMap<String, Integer> UNICEFNoTxns = AIBSwiftPaymentFileRobot.CheckNoOfTxnInAckFile("86570");
-		if(UNICEFNoTxns.size() > 0) {
-			
-			UNICEFNoTxns.forEach((Key, Value) -> System.out.println(Key +":"+Value));
-		}
-		*/
+		paymentLog += loggMsg + "\n";
+
 		loggMsg = "-----------------------------------------------------------------------------------------";
 		System.out.println(loggMsg);
-		paymentLog += loggMsg +"\n";
-		
-		
+		paymentLog += loggMsg + "\n";
+
 		loggMsg = "---<<<< UNDP Payments and ACK confirmation files >>>>---";
 		System.out.println(loggMsg);
 		paymentLog += loggMsg + "\n";
-		
+
 		loggMsg = "---  Payment File Name                 |OrgnlMsgId|No of Payments  <|>Response File Name     |OrgnlMsgId|No of Payments Received|Status ---";
 		System.out.println(loggMsg);
-		paymentLog += loggMsg +"\n";
-		
-		ArrayList<ArrayList<String>> UNDPMatchedFiles = AIBSwiftPaymentFileRobot.matchPaymentFileAndAckFilesProperties("86154");
-		
-		
-		for(int i = 0; i < UNDPMatchedFiles.size(); i++) {
-			
-			for(int j = 0; j < UNDPMatchedFiles.get(i).size(); j++) {
-				
-				if(j == 2) {
-					
+		paymentLog += loggMsg + "\n";
+
+		ArrayList<ArrayList<String>> UNDPMatchedFiles = AIBSwiftPaymentFileRobot
+				.matchPaymentFileAndAckFilesProperties("86154");
+
+		for (int i = 0; i < UNDPMatchedFiles.size(); i++) {
+
+			for (int j = 0; j < UNDPMatchedFiles.get(i).size(); j++) {
+
+				if (j == 2) {
+
 					System.out.print("          <|>");
 					paymentLog += "          <|>";
 				}
 				System.out.print(UNDPMatchedFiles.get(i).get(j) + " - ");
 				paymentLog += UNDPMatchedFiles.get(i).get(j) + " - ";
 			}
+
+			if (UNDPMatchedFiles.get(i).get(1).equals(UNDPMatchedFiles.get(i).get(3))) {
+				System.out.print("===> " + PAYMENT_SUCCESS_STATUS);
+				paymentLog += "===> " + PAYMENT_SUCCESS_STATUS;
+			} else {
+				int pendingAcks = Integer.parseInt(UNDPMatchedFiles.get(i).get(1))
+						- Integer.parseInt(UNDPMatchedFiles.get(i).get(3));
+				System.out.print("===> " + PAYMENT_WARNING_STATUS + " -> " + pendingAcks + " payments are pending");
+				paymentLog += "===> " + PAYMENT_WARNING_STATUS + " -> " + pendingAcks + " payments are pending";
+			}
+
 			System.out.println();
 			paymentLog += "\n";
 		}
-		
-		ActivityLogger.logActivity(paymentLog+"\n");
+
+		ActivityLogger.logActivity(paymentLog + "\n");
 		System.out.println();
-		
+
 		paymentLog = "";
 		loggMsg = "---<<<< UNICEF Payments and ACK confirmation files >>>>---";
 		System.out.println(loggMsg);
-		paymentLog += "\n"+loggMsg +"\n";
-		
+		paymentLog += "\n" + loggMsg + "\n";
+
 		loggMsg = "---  Payment File Name                    |OrgnlMsgId|No of Payments<|>Response File Name     |OrgnlMsgId|No of Payments Received|Status ---";
 		System.out.println(loggMsg);
-		paymentLog += loggMsg +"\n";
-		ArrayList<ArrayList<String>> UNICEFMatchedFiles = AIBSwiftPaymentFileRobot.matchPaymentFileAndAckFilesProperties("86570");
-		
-		for(int i = 0; i < UNICEFMatchedFiles.size(); i++) {
-			
-			for(int j = 0; j < UNICEFMatchedFiles.get(i).size(); j++) {
-				
-				if(j == 2) {
-					
+		paymentLog += loggMsg + "\n";
+		ArrayList<ArrayList<String>> UNICEFMatchedFiles = AIBSwiftPaymentFileRobot
+				.matchPaymentFileAndAckFilesProperties("86570");
+
+		for (int i = 0; i < UNICEFMatchedFiles.size(); i++) {
+
+			for (int j = 0; j < UNICEFMatchedFiles.get(i).size(); j++) {
+
+				if (j == 2) {
+
 					System.out.print("  <|>");
-					paymentLog +="  <|>";
+					paymentLog += "  <|>";
 				}
-				
-				System.out.print(UNICEFMatchedFiles.get(i).get(j)+ " - ");
-				paymentLog +=UNICEFMatchedFiles.get(i).get(j)+ " - ";
+
+				System.out.print(UNICEFMatchedFiles.get(i).get(j) + " - ");
+				paymentLog += UNICEFMatchedFiles.get(i).get(j) + " - ";
 			}
+
+			if (UNICEFMatchedFiles.get(i).get(1).equals(UNICEFMatchedFiles.get(i).get(3))) {
+				System.out.print("===> " + PAYMENT_SUCCESS_STATUS);
+				paymentLog += "===> " + PAYMENT_SUCCESS_STATUS;
+			} else {
+				int pendingAcks = Integer.parseInt(UNICEFMatchedFiles.get(i).get(1))
+						- Integer.parseInt(UNICEFMatchedFiles.get(i).get(3));
+				System.out.print("===> " + PAYMENT_WARNING_STATUS + " -> " + pendingAcks + " payments are pending");
+				paymentLog += "===> " + PAYMENT_WARNING_STATUS + " -> " + pendingAcks + " payments are pending";
+			}
+
 			System.out.println();
 			paymentLog += "\n";
 		}
-		
+
 		loggMsg = "------------------------------------------------------------------------------------------";
 		System.out.println(loggMsg);
-		paymentLog += loggMsg+"\n";
-		
-		
-		loggMsg = "<<<<< End of Check by Robot >>>>>";
-		System.out.println(loggMsg);
-		paymentLog += loggMsg;
+		paymentLog += loggMsg + "\n";
+
 		ActivityLogger.logActivity(paymentLog);
-		
+
+		loggMsg = "\n===============================================================================================\n"
+				+ "--- *** Rejected UNDP Payment Files***---";
+		System.out.println(loggMsg);
+		paymentLog = loggMsg + "\n";
+
+		HashMap<String, Integer> UNDPRejectedPayments = AIBSwiftPaymentFileRobot
+				.getRejectedAndWarningPaymentFilesProperties("86154");
+
+		for (Map.Entry<String, Integer> undpRejectedFile : UNDPRejectedPayments.entrySet()) {
+			System.out.println(undpRejectedFile.getKey() + " --> " + undpRejectedFile.getValue());
+			paymentLog += undpRejectedFile.getKey() + " --> " + undpRejectedFile.getValue() + "\n";
+		}
+
+		ActivityLogger.logActivity(paymentLog);
+
+		loggMsg = "\n---***Rejected UNICEF Payment Files***--";
+		System.out.println(loggMsg);
+		paymentLog = loggMsg + "\n";
+
+		HashMap<String, Integer> UNICEFRejectedPayments = AIBSwiftPaymentFileRobot
+				.getRejectedAndWarningPaymentFilesProperties("86570");
+
+		for (Map.Entry<String, Integer> unicefRejectedFile : UNICEFRejectedPayments.entrySet()) {
+			System.out.println(unicefRejectedFile.getKey() + " --> " + unicefRejectedFile.getValue());
+			paymentLog += unicefRejectedFile.getKey() + " --> " + unicefRejectedFile.getValue() + "\n";
+		}
+		ActivityLogger.logActivity(paymentLog);
+
+		loggMsg = "\n---***Rejected UNDP Transaction Files***---";
+		System.out.println(loggMsg);
+		paymentLog = loggMsg + "\n";
+
+		HashMap<String, Integer> UNDPRejectedTxns = AIBSwiftPaymentFileRobot
+				.getRejectedAndWarningTxnFilesProperties("86154");
+
+		for (Map.Entry<String, Integer> undpRejectedTxns : UNDPRejectedTxns.entrySet()) {
+			System.out.println(undpRejectedTxns.getKey() + " --> " + undpRejectedTxns.getValue());
+			paymentLog += undpRejectedTxns.getKey() + " --> " + undpRejectedTxns.getValue() + "\n";
+		}
+
+		ActivityLogger.logActivity(paymentLog);
+		loggMsg = "\n---***Rejected UNICEF Transaction Files***---";
+		System.out.println(loggMsg);
+		paymentLog = loggMsg + "\n";
+
+		HashMap<String, Integer> UNICEFRejectedTxns = AIBSwiftPaymentFileRobot
+				.getRejectedAndWarningTxnFilesProperties("86570");
+
+		for (Map.Entry<String, Integer> unicefRejectedTxns : UNICEFRejectedTxns.entrySet()) {
+			System.out.println(unicefRejectedTxns.getKey() + " --> " + unicefRejectedTxns.getValue());
+			paymentLog += unicefRejectedTxns.getKey() + " --> " + unicefRejectedTxns.getValue() + "\n";
+		}
+
+		ActivityLogger.logActivity(paymentLog);
+
+		loggMsg = "\n====================================================================================";
+		System.out.println(loggMsg);
+		ActivityLogger.logActivity(loggMsg);
+
+		loggMsg = "\n<<<<< End of Check by Robot >>>>>";
+		System.out.println(loggMsg);
+		paymentLog = loggMsg;
+		ActivityLogger.logActivity(paymentLog);
+
 		loggMsg = "*****************************************************************************************";
 		System.out.println(loggMsg);
 		ActivityLogger.logActivity(loggMsg);
@@ -238,5 +280,4 @@ public class ApplicationMain {
 		System.out.println(loggMsg);
 		ActivityLogger.logActivity(loggMsg);
 	}
-
 }
