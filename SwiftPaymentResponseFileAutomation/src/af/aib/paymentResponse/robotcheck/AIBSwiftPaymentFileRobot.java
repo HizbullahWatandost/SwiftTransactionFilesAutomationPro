@@ -145,7 +145,6 @@ public class AIBSwiftPaymentFileRobot {
 					System.out.println(loggMsg);
 					ActivityLogger.logActivity(loggMsg);
 				}
-
 			}
 		}
 
@@ -231,7 +230,8 @@ public class AIBSwiftPaymentFileRobot {
 
 		if (config.configSetup()) {
 
-			String dir = AppCommons.getTodaysTransactionFilesRejectedFolder(org);
+			String dir = AppCommons.getTodayPendingFolder(org);;
+			
 			File srcDir = new File(dir);
 
 			if (srcDir.exists()) {

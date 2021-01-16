@@ -73,6 +73,7 @@ public class FileExtraction {
 								bufferedWriter.close();
 
 							} catch (Exception exp) {
+								
 								errorMsg = "<File Content and Directory Error>" + exp.getClass().getSimpleName() + "->"
 										+ exp.getCause() + "->" + exp.getMessage();
 								System.out.println(errorMsg);
@@ -81,12 +82,13 @@ public class FileExtraction {
 						}
 
 					}
+					
 				} else {
+					
 					loggMsg = "<Empty Directory> No file found in " + dir + " directory.";
 					System.out.println(loggMsg);
 					ActivityLogger.logActivity(loggMsg);
 				}
-
 			}
 		}
 	}
@@ -224,12 +226,9 @@ public class FileExtraction {
 						System.out.println(loggMsg);
 						ActivityLogger.logActivity(loggMsg);
 					}
-
 				}
-
 			}
 		}
-
 	}
 
 	/**
@@ -239,7 +238,8 @@ public class FileExtraction {
 	 * @param org
 	 * @throws IOException
 	 */
-	// second approach
+	// second approach: supportive
+	@Deprecated
 	public static void extractTransactionFilesFromSwift2(String org) {
 
 		if (config.configSetup()) {
@@ -300,13 +300,12 @@ public class FileExtraction {
 					}
 
 				} else {
+					
 					loggMsg = "<Empty Directory> No file found in " + dir + " directory.";
 					System.out.println(loggMsg);
 					ActivityLogger.logActivity(loggMsg);
 				}
-
 			}
-
 		}
 	}
 
@@ -316,7 +315,8 @@ public class FileExtraction {
 	 * 
 	 * @param org
 	 */
-	// Using Java 7 standard copy method
+	// Using Java 7 standard copy method : supportive
+	@Deprecated
 	public static void extractTransactionFilesFromSwift3(String org) {
 
 		if (config.configSetup()) {
@@ -372,13 +372,12 @@ public class FileExtraction {
 					}
 
 				} else {
+					
 					loggMsg = "<Empty Directory> No file found in " + dir + " directory.";
 					System.out.println(loggMsg);
 					ActivityLogger.logActivity(loggMsg);
 				}
-
 			}
-
 		}
 	}
 }

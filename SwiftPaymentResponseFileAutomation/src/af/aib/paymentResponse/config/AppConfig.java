@@ -72,6 +72,21 @@ public class AppConfig {
 		return (prop.getProperty("app.release.date"));
 	}
 
+	public static String getAppOwner() {
+		return (prop.getProperty("app.owner.name"));
+	}
+	
+	public static String getAppDeveloperName() {
+		return (prop.getProperty("app.developer.name"));
+	}
+	
+	public static String getAppDeveloperEmail() {
+		return (prop.getProperty("app.developer.email"));
+	}
+	
+	public static String getAppPoweredBy() {
+		return (prop.getProperty("app.poweredby"));
+	}
 	public static String getAppRootPath() {
 		return (prop.getProperty("app_root_path"));
 	}

@@ -36,6 +36,15 @@ public class ApplicationMain {
 
 	private final static String PAYMENT_SUCCESS_STATUS = "OK (should be sent today)";
 	private final static String PAYMENT_WARNING_STATUS = "WARNING (should be sent tomorrow)";
+	
+	private static String paymentFilesSrcPath = "";
+	private static String  paymentAckFilesSrcPath = "";
+	private static String  destPendingFolder = "";
+	
+	private static int xmlIndexPaymentFile;
+	private static int xmlIndexAckFile; 
+	
+	
 
 	public static void main(String[] args) throws IOException {
 		// configuring the path automatically
@@ -53,7 +62,6 @@ public class ApplicationMain {
 		FileExtraction.extractResponseFileFromSwift("86154");
 		// Checking for UNDP duplicate response files
 		FileLoading.duplicateFileHandler("86154");
-		// TODO- removing schema tag from UNDP response files
 
 		// Extracting UNICEF response files
 		FileExtraction.extractResponseFileFromSwift("86570");
@@ -79,6 +87,10 @@ public class ApplicationMain {
 			AppCommons.createTransactionFilesFolder("86570", file.getOrgnlMsgId());
 		}
 
+		// Creating pending folders
+		AppCommons.createTodayPendingFolder("86154");
+		AppCommons.createTodayPendingFolder("86570");
+		
 		// Extracting UNDP transaction files
 		FileExtraction.extractTransactionFilesFromSwift("86154");
 		// Extracting UNICEF transaction files
@@ -106,14 +118,14 @@ public class ApplicationMain {
 		FileTransformationAndMerging.addingClosingTagsToTheTransactionFiles("86570");
 
 		// TODO - Robotic Check - check the payment files and transaction files, and
-		// find which files should be send
+		// find which files should be send and which not and it will be send to Swift automatically
 
 		String paymentLog = "";
 		loggMsg = "*****************************************************************************************";
 		System.out.println(loggMsg);
 		paymentLog += loggMsg + "\n";
 
-		loggMsg = "<<<<< Start of Check by Robot >>>>>";
+		loggMsg = "<<<<< Start of Check by Hizwat Robot >>>>>";
 		System.out.println(loggMsg);
 		paymentLog += loggMsg + "\n";
 
@@ -131,11 +143,20 @@ public class ApplicationMain {
 
 		ArrayList<ArrayList<String>> UNDPMatchedFiles = AIBSwiftPaymentFileRobot
 				.matchPaymentFileAndAckFilesProperties("86154");
+		
+		paymentFilesSrcPath = AppCommons.getTodaysResponseFilesFolder("86154");
+		paymentAckFilesSrcPath = AppCommons.getTodaysTransactionFilesFolder("86154");
+		
+		
+		String paymentFileName = "", paymentAckFileName = "";
 
+		// Looping through matched files
 		for (int i = 0; i < UNDPMatchedFiles.size(); i++) {
 
+			// Looping through each item of the array list which contains the matched files pairs 
 			for (int j = 0; j < UNDPMatchedFiles.get(i).size(); j++) {
 
+				// Separator of file level and transaction files leve
 				if (j == 2) {
 
 					System.out.print("          <|>");
@@ -145,14 +166,35 @@ public class ApplicationMain {
 				paymentLog += UNDPMatchedFiles.get(i).get(j) + " - ";
 			}
 
+			// If the number of payments in payment file level matches the ACK file
 			if (UNDPMatchedFiles.get(i).get(1).equals(UNDPMatchedFiles.get(i).get(3))) {
+				
 				System.out.print("===> " + PAYMENT_SUCCESS_STATUS);
 				paymentLog += "===> " + PAYMENT_SUCCESS_STATUS;
+			
+			// If the number of payments in payment file level does not match the ACK merged file
 			} else {
+				
 				int pendingAcks = Integer.parseInt(UNDPMatchedFiles.get(i).get(1))
 						- Integer.parseInt(UNDPMatchedFiles.get(i).get(3));
 				System.out.print("===> " + PAYMENT_WARNING_STATUS + " -> " + pendingAcks + " payments are pending");
 				paymentLog += "===> " + PAYMENT_WARNING_STATUS + " -> " + pendingAcks + " payments are pending";
+				
+				destPendingFolder = AppCommons.getTodayPendingFolder("86154");
+				xmlIndexPaymentFile = UNDPMatchedFiles.get(i).get(0).lastIndexOf(".xml")+(".xml").length();
+				paymentFileName = UNDPMatchedFiles.get(i).get(0).substring(0, xmlIndexPaymentFile);
+				
+				xmlIndexAckFile = UNDPMatchedFiles.get(i).get(2).lastIndexOf(".xml")+(".xml").length();
+				paymentAckFileName = UNDPMatchedFiles.get(i).get(2).substring(0, xmlIndexAckFile);
+				
+				pendingAcks = pendingAcks < 0 ? (-1) * pendingAcks : pendingAcks;
+				
+				// If the number of missing/pending payments are more than 1 or 2 then move it to rejected or pending folder
+				if(pendingAcks >= 3) {
+					
+					AppCommons.moveFile(false,paymentFilesSrcPath+"\\"+paymentFileName, destPendingFolder+"\\"+paymentFileName);
+					AppCommons.moveFile(false,paymentAckFilesSrcPath+"\\merged\\"+paymentAckFileName, destPendingFolder+"\\"+paymentAckFileName);
+				}	
 			}
 
 			System.out.println();
@@ -172,6 +214,10 @@ public class ApplicationMain {
 		paymentLog += loggMsg + "\n";
 		ArrayList<ArrayList<String>> UNICEFMatchedFiles = AIBSwiftPaymentFileRobot
 				.matchPaymentFileAndAckFilesProperties("86570");
+		
+		paymentFilesSrcPath = AppCommons.getTodaysResponseFilesFolder("86570");
+		paymentAckFilesSrcPath = AppCommons.getTodaysTransactionFilesFolder("86570");
+		
 
 		for (int i = 0; i < UNICEFMatchedFiles.size(); i++) {
 
@@ -188,13 +234,32 @@ public class ApplicationMain {
 			}
 
 			if (UNICEFMatchedFiles.get(i).get(1).equals(UNICEFMatchedFiles.get(i).get(3))) {
+				
 				System.out.print("===> " + PAYMENT_SUCCESS_STATUS);
 				paymentLog += "===> " + PAYMENT_SUCCESS_STATUS;
+				
 			} else {
+				
 				int pendingAcks = Integer.parseInt(UNICEFMatchedFiles.get(i).get(1))
 						- Integer.parseInt(UNICEFMatchedFiles.get(i).get(3));
 				System.out.print("===> " + PAYMENT_WARNING_STATUS + " -> " + pendingAcks + " payments are pending");
 				paymentLog += "===> " + PAYMENT_WARNING_STATUS + " -> " + pendingAcks + " payments are pending";
+				
+				destPendingFolder = AppCommons.getTodayPendingFolder("86570");
+				xmlIndexPaymentFile = UNICEFMatchedFiles.get(i).get(0).lastIndexOf(".xml")+(".xml").length();
+				paymentFileName = UNICEFMatchedFiles.get(i).get(0).substring(0, xmlIndexPaymentFile);
+				
+				xmlIndexAckFile = UNICEFMatchedFiles.get(i).get(2).lastIndexOf(".xml")+(".xml").length();
+				paymentAckFileName = UNICEFMatchedFiles.get(i).get(2).substring(0, xmlIndexAckFile);
+				
+				pendingAcks = pendingAcks < 0 ? (-1) * pendingAcks : pendingAcks;
+				
+				// If the number of missing/pending payments are more than 1 or 2 then move it to rejected or pending folder
+				if(pendingAcks >= 3) {
+					
+					AppCommons.moveFile(false, paymentFilesSrcPath+"\\"+paymentFileName, destPendingFolder+"\\"+paymentFileName);
+					AppCommons.moveFile(false, paymentAckFilesSrcPath+"\\merged\\"+paymentAckFileName, destPendingFolder+"\\"+paymentAckFileName);
+				}
 			}
 
 			System.out.println();
@@ -208,10 +273,11 @@ public class ApplicationMain {
 		ActivityLogger.logActivity(paymentLog);
 
 		loggMsg = "\n===============================================================================================\n"
-				+ "--- *** Rejected UNDP Payment Files***---";
+				+ "--- *** Rejected/Pending UNDP Payment Files***---";
 		System.out.println(loggMsg);
 		paymentLog = loggMsg + "\n";
 
+		// Listing UNDP rejected/pending file levels
 		HashMap<String, Integer> UNDPRejectedPayments = AIBSwiftPaymentFileRobot
 				.getRejectedAndWarningPaymentFilesProperties("86154");
 
@@ -222,10 +288,11 @@ public class ApplicationMain {
 
 		ActivityLogger.logActivity(paymentLog);
 
-		loggMsg = "\n---***Rejected UNICEF Payment Files***--";
+		loggMsg = "\n---***Rejected/Pending UNICEF Payment Files***--";
 		System.out.println(loggMsg);
 		paymentLog = loggMsg + "\n";
 
+		// Listing UNICEF rejected/pending file levels
 		HashMap<String, Integer> UNICEFRejectedPayments = AIBSwiftPaymentFileRobot
 				.getRejectedAndWarningPaymentFilesProperties("86570");
 
@@ -235,10 +302,11 @@ public class ApplicationMain {
 		}
 		ActivityLogger.logActivity(paymentLog);
 
-		loggMsg = "\n---***Rejected UNDP Transaction Files***---";
+		loggMsg = "\n---***Rejected/Pending UNDP Transaction Files***---";
 		System.out.println(loggMsg);
 		paymentLog = loggMsg + "\n";
 
+		// Listing UNDP rejected/pending ACK levels
 		HashMap<String, Integer> UNDPRejectedTxns = AIBSwiftPaymentFileRobot
 				.getRejectedAndWarningTxnFilesProperties("86154");
 
@@ -248,10 +316,11 @@ public class ApplicationMain {
 		}
 
 		ActivityLogger.logActivity(paymentLog);
-		loggMsg = "\n---***Rejected UNICEF Transaction Files***---";
+		loggMsg = "\n---***Rejected/Pending UNICEF Transaction Files***---";
 		System.out.println(loggMsg);
 		paymentLog = loggMsg + "\n";
 
+		// Listing UNICEF rejected/pending ACK levels
 		HashMap<String, Integer> UNICEFRejectedTxns = AIBSwiftPaymentFileRobot
 				.getRejectedAndWarningTxnFilesProperties("86570");
 
@@ -279,5 +348,18 @@ public class ApplicationMain {
 				+ AppCommons.getCurrentDateTime() + " <<<>>> ####################";
 		System.out.println(loggMsg);
 		ActivityLogger.logActivity(loggMsg);
+		
+		// Delete the source directory folder's files after processing it
+		AppCommons.deleteFilesOfDirectory("received", "86154");
+		AppCommons.deleteFilesOfDirectory("received", "86570");
+		AppCommons.deleteFilesOfDirectory("success", "86154");
+		AppCommons.deleteFilesOfDirectory("success", "86570");
+		
+		// Move back the rejected/pending files to the source folder to be processed and send next day
+		AppCommons.movingWarningAndRejectedFilesBack("received", "86154");
+		AppCommons.movingWarningAndRejectedFilesBack("received", "86570");
+		
+		AppCommons.movingWarningAndRejectedFilesBack("success", "86154");
+		AppCommons.movingWarningAndRejectedFilesBack("success", "86570");
 	}
 }

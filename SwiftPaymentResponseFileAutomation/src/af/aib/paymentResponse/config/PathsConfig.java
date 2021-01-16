@@ -59,7 +59,7 @@ public class PathsConfig {
 
 					} catch (Exception exp) {
 
-						errorMsg = "<Path Creation Error>" + exp.getClass().getSimpleName() + "->" + exp.getCause()
+						errorMsg = "<Directory Creation Error>" + exp.getClass().getSimpleName() + "->" + exp.getCause()
 								+ "->" + exp.getMessage();
 						System.out.println(errorMsg);
 						ActivityLogger.logActivity(errorMsg);

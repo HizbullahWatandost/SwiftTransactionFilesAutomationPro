@@ -238,7 +238,7 @@ public class FileTransformationAndMerging {
 								+ firstFileName;
 						String firstFileDestPath = AppCommons.getTodaysTransactionFilesMergedFolder(org) + "\\"
 								+ firstFileName;
-						AppCommons.moveFile(firstFileSrcPath, firstFileDestPath);
+						AppCommons.moveFile(true,firstFileSrcPath, firstFileDestPath);
 
 					} catch (IOException exp) {
 
@@ -247,11 +247,9 @@ public class FileTransformationAndMerging {
 						System.out.println(errorMsg);
 						ActivityLogger.logActivity(errorMsg);
 					}
-
 				}
 			}
 		}
-
 	}
 
 	/**

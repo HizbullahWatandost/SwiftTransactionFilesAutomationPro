@@ -142,7 +142,7 @@ public class FileLoading {
 									try {
 
 										// Move the duplicate file inside the duplicate folder
-										AppCommons.moveFile(listOfFiles[i].toString(),
+										AppCommons.moveFile(true,listOfFiles[i].toString(),
 												duplicatePath + "\\" + listOfFiles[i].getName());
 
 									} catch (Exception exp) {
@@ -154,20 +154,16 @@ public class FileLoading {
 									}
 								}
 							}
-
 						}
-
 					}
-
 				}
 			}
 		}
-
 	}
 
 	/**
 	 * This method is used to move the invalid or rejected transaction files inside
-	 * the rejected folder NOTE: the rejected or invalid transaction files are the
+	 * the rejected/pending folder NOTE: the rejected or invalid transaction files are the
 	 * files which their transaction code or id doesn't match to any response files.
 	 * 
 	 * @param org: the organization code for which we check the invalid transaction
@@ -199,9 +195,9 @@ public class FileLoading {
 					filesOrgnlMsgIds.add(file.getOrgnlMsgId());
 				}
 
-				AppCommons.createFolderForRejectedTransactionFiles(org);
-
-				String rejectedTransactionFilesDir = AppCommons.getTodaysTransactionFilesRejectedFolder(org);
+				AppCommons.createTodayPendingFolder(org);
+				String pendingTransactionFilesDir = AppCommons.getTodayPendingFolder(org);
+				
 				File rejectedDir = new File(dir);
 
 				if (listOfFiles != null && listOfFiles.length > 0) {
@@ -224,14 +220,14 @@ public class FileLoading {
 									if (rejectedDir.exists()) {
 
 										fileWriterPath = new FileWriter(
-												rejectedTransactionFilesDir + "\\" + file.getName());
+												pendingTransactionFilesDir + "\\" + file.getName());
 										bufferedWriter = new BufferedWriter(fileWriterPath);
 										bufferedWriter.write(fileContent);
 										bufferedWriter.close();
 
 										errorMsg = "<Unknown Transaction File> A transaction file with refernce ("
 												+ orgnlMsgId + ") is unknown and moved to "
-												+ rejectedTransactionFilesDir;
+												+ pendingTransactionFilesDir;
 										System.out.println(errorMsg);
 										ActivityLogger.logActivity(errorMsg);
 									}
