@@ -9,6 +9,7 @@ import af.aib.paymentResponse.config.AppConfig;
 import af.aib.paymentResponse.log.ActivityLogger;
 import af.aib.paymentResponse.model.ResponseFile;
 import af.aib.paymentResponse.util.AppCommons;
+import af.aib.paymentResponse.util.Banner;
 
 /**
  * This class is used to load files from a source directory to another directory
@@ -171,7 +172,7 @@ public class FileLoading {
 	 */
 	public static void rejectedOrInvalidTransactionFilesCheck(String org) {
 
-		if (config.configSetup()) {
+		if (config.configSetup() && Banner.appConfigCheck()) {
 
 			// Getting all the files from success from source path -- swift
 			String dir = AppConfig.getResponseFileSrcPath() + "success\\" + org + "\\";

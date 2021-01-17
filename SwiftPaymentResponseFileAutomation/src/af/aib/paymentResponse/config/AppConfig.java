@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import af.aib.paymentResponse.log.ActivityLogger;
+import af.aib.paymentResponse.util.Banner;
 
 /**
  * The Config class which read the contents of application config file. The
@@ -30,16 +31,21 @@ public class AppConfig {
 	 * 
 	 * @return : true if the configuration is OK, else false in case of invalid
 	 *         configuration
+	 * @throws InterruptedException 
 	 */
 	public boolean configSetup() {
 
 		boolean config = false;
 
 		try {
+			
 			appConfigStream = getClass().getClassLoader().getResourceAsStream(fileName);
 			prop.load(appConfigStream);
-			config = true;
-
+			
+			if(Banner.appConfigCheck()) {
+				config = true;
+			}
+			
 		} catch (FileNotFoundException fnfex) {
 
 			errorMsg = "<Config File Not Found> " + "The config file " + fileName
@@ -51,7 +57,7 @@ public class AppConfig {
 		} catch (IOException exp) {
 
 			config = false;
-			errorMsg = "<Configuration Error>" + exp.getClass().getSimpleName() + "->" + exp.getCause() + "->"
+			errorMsg = "<Configuration Error> Invalid app configuration detected!!!" + exp.getClass().getSimpleName() + "->" + exp.getCause() + "->"
 					+ exp.getMessage();
 			System.out.println(errorMsg);
 			ActivityLogger.logActivity(errorMsg);
@@ -72,6 +78,10 @@ public class AppConfig {
 		return (prop.getProperty("app.release.date"));
 	}
 
+	public static String getAppMaintainanceDate() {
+		return (prop.getProperty("app.maintainance.date"));
+	}
+	
 	public static String getAppOwner() {
 		return (prop.getProperty("app.owner.name"));
 	}

@@ -29,7 +29,7 @@ public class PathsConfig {
 	 * Configuration paths means creating the required paths which can be used by
 	 * the application to fetch and store data.
 	 */
-	public static void pathsSetup() {
+	public static void pathsSetup(){
 
 		// If configuration is OK
 		if (config.configSetup()) {

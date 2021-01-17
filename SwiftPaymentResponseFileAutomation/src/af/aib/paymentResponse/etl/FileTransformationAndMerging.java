@@ -247,9 +247,11 @@ public class FileTransformationAndMerging {
 						System.out.println(errorMsg);
 						ActivityLogger.logActivity(errorMsg);
 					}
+
 				}
 			}
 		}
+
 	}
 
 	/**

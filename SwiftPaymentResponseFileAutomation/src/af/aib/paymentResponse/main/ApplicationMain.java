@@ -15,6 +15,7 @@ import af.aib.paymentResponse.log.ActivityLogger;
 import af.aib.paymentResponse.model.ResponseFile;
 import af.aib.paymentResponse.robotcheck.AIBSwiftPaymentFileRobot;
 import af.aib.paymentResponse.util.AppCommons;
+import af.aib.paymentResponse.util.Banner;
 
 /**
  * This class the main class which runs the application and other methods are
@@ -46,18 +47,26 @@ public class ApplicationMain {
 	
 	
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InterruptedException {
 		// configuring the path automatically
+		
 		PathsConfig.pathsSetup();
 
 		// configuring the logging
 		ActivityLogger.startLogging();
-
-		loggMsg = "#################### <<<>>> Start of Today's Swift Response File Merger Automation: "
+		
+		loggMsg = "#################### <<<>>> Start of Today's Swift Payment Response File Merger Automation: "
 				+ AppCommons.getCurrentDateTime() + " <<<>>> ####################";
 		System.out.println(loggMsg);
 		ActivityLogger.logActivity(loggMsg);
-
+		
+		Banner.printBanner();
+		
+		loggMsg = "<<<<< Start of Fetching the Swift payment response files from Swift Server >>>>>";
+		System.out.println(loggMsg);
+		ActivityLogger.logActivity("\n"+loggMsg);
+		AppCommons.processFiles();
+		
 		// Extracting UNDP response files
 		FileExtraction.extractResponseFileFromSwift("86154");
 		// Checking for UNDP duplicate response files
@@ -125,9 +134,11 @@ public class ApplicationMain {
 		System.out.println(loggMsg);
 		paymentLog += loggMsg + "\n";
 
-		loggMsg = "<<<<< Start of Check by Hizwat Robot >>>>>";
+		loggMsg = "<<<<< Start of Processing & Checking the Swift payment files by Hizwat Robot >>>>>";
 		System.out.println(loggMsg);
 		paymentLog += loggMsg + "\n";
+		
+		AppCommons.processFiles();
 
 		loggMsg = "-----------------------------------------------------------------------------------------";
 		System.out.println(loggMsg);
@@ -341,6 +352,10 @@ public class ApplicationMain {
 		ActivityLogger.logActivity(paymentLog);
 
 		loggMsg = "*****************************************************************************************";
+		System.out.println(loggMsg);
+		ActivityLogger.logActivity(loggMsg);
+		
+		loggMsg = ">>> Files are processed and sent back to the Swift Server, please check Swift UI interface for the status of the files (should be Network ACKed)";
 		System.out.println(loggMsg);
 		ActivityLogger.logActivity(loggMsg);
 

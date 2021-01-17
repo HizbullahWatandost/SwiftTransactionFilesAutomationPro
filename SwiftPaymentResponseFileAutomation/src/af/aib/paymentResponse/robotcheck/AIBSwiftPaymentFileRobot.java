@@ -11,6 +11,7 @@ import af.aib.paymentResponse.log.ActivityLogger;
 import af.aib.paymentResponse.model.ResponseFile;
 import af.aib.paymentResponse.model.TransactionFile;
 import af.aib.paymentResponse.util.AppCommons;
+import af.aib.paymentResponse.util.Banner;
 
 /**
  * This class just work like a robot which checks which payments file and ACK
@@ -39,13 +40,14 @@ public class AIBSwiftPaymentFileRobot {
 	 * 
 	 * @param org
 	 * @return
+	 * @throws InterruptedException 
 	 */
 	public static HashMap<String, Integer> CheckNoOfPaymentsInFile(String org) {
 
 		// It stores no of payments in key:value pair
 		HashMap<String, Integer> noOfPaymentsInFile = new HashMap<String, Integer>();
 
-		if (config.configSetup()) {
+		if (config.configSetup() && Banner.appConfigCheck()) {
 
 			String dir = AppCommons.getTodaysResponseFilesFolder(org);
 			File srcDir = new File(dir);
@@ -98,6 +100,7 @@ public class AIBSwiftPaymentFileRobot {
 	 * 
 	 * @param org
 	 * @return
+	 * @throws InterruptedException 
 	 */
 	public static HashMap<String, Integer> CheckNoOfTxnInAckFile(String org) {
 
@@ -157,6 +160,7 @@ public class AIBSwiftPaymentFileRobot {
 	 * 
 	 * @param org
 	 * @return
+	 * @throws InterruptedException 
 	 */
 	public static ArrayList<ArrayList<String>> matchPaymentFileAndAckFilesProperties(String org) {
 
@@ -205,6 +209,7 @@ public class AIBSwiftPaymentFileRobot {
 	 * 
 	 * @param org
 	 * @return
+	 * @throws InterruptedException 
 	 */
 	public static HashMap<String, Integer> getRejectedAndWarningPaymentFilesProperties(String org) {
 
@@ -223,6 +228,7 @@ public class AIBSwiftPaymentFileRobot {
 	 * 
 	 * @param org
 	 * @return
+	 * @throws InterruptedException 
 	 */
 	public static HashMap<String, Integer> getRejectedAndWarningTxnFilesProperties(String org) {
 		// It stores no of payments in key:value pair

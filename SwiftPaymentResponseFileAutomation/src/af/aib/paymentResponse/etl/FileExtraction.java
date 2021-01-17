@@ -12,6 +12,7 @@ import af.aib.paymentResponse.config.AppConfig;
 import af.aib.paymentResponse.log.ActivityLogger;
 import af.aib.paymentResponse.model.ResponseFile;
 import af.aib.paymentResponse.util.AppCommons;
+import af.aib.paymentResponse.util.Banner;
 
 /**
  * This class is used to extract files from source directory (swift) to the
@@ -35,8 +36,9 @@ public class FileExtraction {
 	 * organization id or folder name i.e. 86154
 	 * 
 	 * @param org
+	 * @throws InterruptedException 
 	 */
-	public static void extractResponseFileFromSwift(String org) {
+	public static void extractResponseFileFromSwift(String org) throws InterruptedException {
 
 		if (config.configSetup()) {
 
@@ -104,7 +106,7 @@ public class FileExtraction {
 
 		ArrayList<ResponseFile> output = new ArrayList<ResponseFile>();
 
-		if (config.configSetup()) {
+		if (config.configSetup() && Banner.appConfigCheck()) {
 
 			String dir = AppCommons.getTodaysResponseFilesFolder(org);
 			File srcDir = new File(dir);

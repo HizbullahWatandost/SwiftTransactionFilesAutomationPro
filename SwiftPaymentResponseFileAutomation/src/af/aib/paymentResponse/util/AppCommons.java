@@ -904,4 +904,25 @@ public class AppCommons {
 
 		return destPath;
 	}
+	
+	public static void processFiles() throws InterruptedException {
+		
+		if(config.configSetup()) {
+			loggMsg = "\nPlease wait, I am checking and processing the files ...";
+			System.out.println(loggMsg);
+			ActivityLogger.logActivity(loggMsg);
+			
+			loggMsg = ".";
+			for(int i = 0; i <= 100; i++) {
+				
+				if(i == 0 || i == 25 || i == 50 || i == 75 || i == 100) loggMsg = i +"%";
+				else loggMsg = ".";
+				System.out.print(loggMsg);
+				Thread.sleep(200);
+			}
+			System.out.println("\n>>> Hey, I am done with processing the files");
+			loggMsg += "\n>>> Hey, I am done with processing the files";
+			ActivityLogger.logActivity(loggMsg);
+		}	
+	}
 }

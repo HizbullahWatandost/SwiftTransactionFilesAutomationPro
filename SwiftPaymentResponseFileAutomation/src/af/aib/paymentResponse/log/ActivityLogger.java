@@ -24,7 +24,7 @@ public class ActivityLogger {
 
 	private static String errorMsg = "";
 
-	public static void startLogging() {
+	public static void startLogging() throws InterruptedException {
 
 		try {
 
