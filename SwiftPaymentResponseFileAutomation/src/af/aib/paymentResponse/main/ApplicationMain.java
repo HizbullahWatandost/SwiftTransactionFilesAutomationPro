@@ -355,10 +355,22 @@ public class ApplicationMain {
 		System.out.println(loggMsg);
 		ActivityLogger.logActivity(loggMsg);
 		
-		loggMsg = ">>> Files are processed and sent back to the Swift Server, please check Swift UI interface for the status of the files (should be Network ACKed)";
+		loggMsg = "\n#################### Important Important Important (please read it) #######################\n";
 		System.out.println(loggMsg);
 		ActivityLogger.logActivity(loggMsg);
-
+		
+		loggMsg = ">>> Files are processed and sent back to the Swift Server, please check Swift UI interface for the status of the files (should be Network ACKed)";
+		System.out.println(loggMsg);
+		ActivityLogger.logActivity("\n"+loggMsg);
+		
+		
+		loggMsg = ">>> Give Feedback: You know this automation saved you from hours of manual work and headache considering efficiency and accuracy as well\n"
+				+ "If you like it, please give a feedback through email with subject title 'AIB Swift Payments Combiner Automation Software'\n"
+				+ "and send it to the application team, It hardly takes one minute.\nThank you ):\n"
+				+ "******************************************************************************************";
+		System.out.println(loggMsg);
+		ActivityLogger.logActivity("\n"+loggMsg);
+		
 		loggMsg = "#################### <<<>>> End of Today's Swift Response File Merger Automation: "
 				+ AppCommons.getCurrentDateTime() + " <<<>>> ####################";
 		System.out.println(loggMsg);
