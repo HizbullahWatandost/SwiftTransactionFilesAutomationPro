@@ -661,22 +661,41 @@ public class AppCommons {
 	 * @param folder: received or success
 	 * @param org: undp or unicef
 	 */
-	public static void deleteFilesOfDirectory(String folder, String org) {
+	public static void moveFilesToUploadedFolder(String folder, String org) {
 		
 		if (config.configSetup()) {
 
-			String dir = AppConfig.getResponseFileSrcPath() + folder+"\\" + org + "\\";
-			File srcDir = new File(dir);
+			String sDir = AppConfig.getResponseFileSrcPath() + folder+"\\" + org +"\\";
+			File srcDir = new File(sDir);
+			
+			String dDir = AppConfig.getResponseFileSrcPath() + folder+"\\" + org + "\\" +"uploaded" +"\\";
+			File destDir = new File(dDir);
 
 			if (srcDir.exists()) {
+				
+				if(!destDir.exists()) {
+					
+					destDir.mkdirs();
+				}
+				
 				// Get list of the files inside the directory
 				File[] listOfFiles = srcDir.listFiles();
-				if(listOfFiles != null) {
-					for(File f: listOfFiles) {
-						if(f.isDirectory()) {
-							deleteFilesOfDirectory(folder, org);
-						}else {
-							f.delete();
+				if (listOfFiles != null && listOfFiles.length > 0) {
+
+					for (File file : listOfFiles) {
+
+						if (AppCommons.isXMLFile(file.getName())) {
+
+							try {
+								// moving the file to uploaded folder
+								AppCommons.moveFile(false, sDir + file.getName(), dDir + file.getName());
+
+							} catch (Exception exp) {
+								errorMsg = "<File Movement Error>" + exp.getClass().getSimpleName() + "->"
+										+ exp.getCause() + "->" + exp.getMessage();
+								System.out.println(errorMsg);
+								ActivityLogger.logActivity(errorMsg);
+							}
 						}
 					}
 				}	

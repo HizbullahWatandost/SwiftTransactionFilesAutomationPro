@@ -376,11 +376,11 @@ public class ApplicationMain {
 		System.out.println(loggMsg);
 		ActivityLogger.logActivity(loggMsg);
 		
-		// Delete the source directory folder's files after processing it
-		AppCommons.deleteFilesOfDirectory("received", "86154");
-		AppCommons.deleteFilesOfDirectory("received", "86570");
-		AppCommons.deleteFilesOfDirectory("success", "86154");
-		AppCommons.deleteFilesOfDirectory("success", "86570");
+		// Moving the copied folder to the uploaded folder in each organization folder
+		AppCommons.moveFilesToUploadedFolder("received", "86154");
+		AppCommons.moveFilesToUploadedFolder("received", "86570");
+		AppCommons.moveFilesToUploadedFolder("success", "86154");
+		AppCommons.moveFilesToUploadedFolder("success", "86570");
 		
 		// Move back the rejected/pending files to the source folder to be processed and send next day
 		AppCommons.movingWarningAndRejectedFilesBack("received", "86154");

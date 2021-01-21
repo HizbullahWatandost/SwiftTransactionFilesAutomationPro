@@ -108,4 +108,8 @@ public class AppConfig {
 	public static String getResponseFileSrcPath() {
 		return (prop.getProperty("responsefile_src_path"));
 	}
+	
+	public static String getAppBannerPath() {
+		return (prop.getProperty("app_banner_path"));
+	}
 }

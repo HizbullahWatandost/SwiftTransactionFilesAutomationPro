@@ -1,11 +1,21 @@
 package af.aib.paymentResponse.util;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
+
 
 
 import af.aib.paymentResponse.config.AppConfig;
 import af.aib.paymentResponse.log.ActivityLogger;
+
 
 public class Banner {
 	
@@ -16,7 +26,7 @@ public class Banner {
 	developerEmail,
 	poweredBy;
 	
-	private static String bannerFileName = "app_banner.txt";
+	private static String bannerFileName = "appBanner.txt";
 	private static ClassLoader bannerClassLoader = null;
 	
 	
@@ -130,10 +140,7 @@ public class Banner {
 
 	public static void printBanner()
 	{	
-			bannerClassLoader = Thread.currentThread().getContextClassLoader();
-			InputStream is = bannerClassLoader.getResourceAsStream(bannerFileName);
-			
-			file = new File(bannerClassLoader.getResource(bannerFileName).getFile());
+			file = new File(AppConfig.getAppBannerPath()+"appBanner.txt");
 			loggMsg = AppCommons.readFileAllContent(file.toString());
 			loggMsg += "\n{Software Name} -> "+AppConfig.getAppName();
 			loggMsg += "\n{Software Version} -> "+AppConfig.getAppVersion();
@@ -152,8 +159,8 @@ public class Banner {
 	
 	public static boolean appConfigCheck(){
 				
-		file = new File(Thread.currentThread().getContextClassLoader().getResource(bannerFileName).getFile());
-		
+		file = new File(AppConfig.getAppBannerPath()+"appBanner.txt");
+				
 		if(!file.exists()) {
 			return false;
 		}
