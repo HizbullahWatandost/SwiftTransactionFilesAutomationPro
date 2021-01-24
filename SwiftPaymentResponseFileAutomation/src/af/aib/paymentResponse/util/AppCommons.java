@@ -656,8 +656,37 @@ public class AppCommons {
 		return transactionFile;
 	}
 	
+
 	/**
 	 * Deleting the file after processing them
+	 * @param folder: received or success
+	 * @param org: undp or unicef
+	 */
+	public static void deleteFilesOfDirectory(String folder, String org) {
+		
+		if (config.configSetup()) {
+
+			String dir = AppConfig.getResponseFileSrcPath() + folder+"\\" + org + "\\";
+			File srcDir = new File(dir);
+
+			if (srcDir.exists()) {
+				// Get list of the files inside the directory
+				File[] listOfFiles = srcDir.listFiles();
+				if(listOfFiles != null) {
+					for(File f: listOfFiles) {
+						if(f.isDirectory()) {
+							deleteFilesOfDirectory(folder, org);
+						}else {
+							f.delete();
+						}
+					}
+				}	
+			}
+		}
+	}
+	
+	/**
+	 * Moving the file after processing them
 	 * @param folder: received or success
 	 * @param org: undp or unicef
 	 */
