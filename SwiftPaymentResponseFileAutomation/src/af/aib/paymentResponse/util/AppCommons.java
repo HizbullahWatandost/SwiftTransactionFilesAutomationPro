@@ -137,6 +137,8 @@ public class AppCommons {
 
 					subFolders.add("86154"); // UNDP response file
 					subFolders.add("86570"); // UNICEF response file
+					subFolders.add("86702"); // UNOPS customer 1
+					subFolders.add("86754"); // UNOPS customer 2
 
 					for (String subFolder : subFolders) {
 
@@ -642,7 +644,7 @@ public class AppCommons {
 		if (fileContent.contains("<TxInfAndSts>")) {
 			orgnlNbOfTxs = fileContent.split("<TxInfAndSts>").length - 1;
 		}
-		// UNICEF file
+		// UNICEF & UNOPS file
 		if (fileContent.contains("<OrgnlPmtInfAndSts>")) {
 			orgnlNbOfTxs = fileContent.split("<OrgnlPmtInfAndSts>").length - 1;
 		}
@@ -688,7 +690,7 @@ public class AppCommons {
 	/**
 	 * Moving the file after processing them
 	 * @param folder: received or success
-	 * @param org: undp or unicef
+	 * @param org: undp or unicef or unops
 	 */
 	public static void moveFilesToUploadedFolder(String folder, String org) {
 		
@@ -778,6 +780,7 @@ public class AppCommons {
 								AppCommons.moveFile(false, fileLevelSrc+"\\"+fileName, pendingFilesPath+"\\"+fileName);
 
 							} catch (Exception exp) {
+								
 								errorMsg = "<File Movement Error>" + exp.getClass().getSimpleName() + "->"
 										+ exp.getCause() + "->" + exp.getMessage();
 								System.out.println(errorMsg);
@@ -811,10 +814,12 @@ public class AppCommons {
 										bufferedWriter.close();
 
 									} catch (Exception exp) {
+										
 										errorMsg = "<File Content and Directory Error>" + exp.getClass().getSimpleName() + "->"
 												+ exp.getCause() + "->" + exp.getMessage();
 										System.out.println(errorMsg);
 										ActivityLogger.logActivity(errorMsg);
+										
 									}
 								}
 							}
@@ -836,6 +841,7 @@ public class AppCommons {
 					// Get list of the files inside the directory
 					File[] listOfFiles = srcDir.listFiles();
 					if(listOfFiles != null) {
+						
 						for(File file: listOfFiles) {
 							
 							if (AppCommons.isXMLFile(file.getName())) {
@@ -853,10 +859,12 @@ public class AppCommons {
 										bufferedWriter.close();
 
 									} catch (Exception exp) {
+										
 										errorMsg = "<File Content and Directory Error>" + exp.getClass().getSimpleName() + "->"
 												+ exp.getCause() + "->" + exp.getMessage();
 										System.out.println(errorMsg);
 										ActivityLogger.logActivity(errorMsg);
+										
 									}
 								}
 							}
@@ -875,15 +883,22 @@ public class AppCommons {
 		
 		String destPath = "";
 		
+		// UNDP
 		if(org.equals("86154")) {
 			
 			destPath = AppConfig.getAppRootPath() + getCurrentDate() + "\\" + "undp" +"_pending";
-			
+		
+		// UNICEF
 		}else if(org.equals("86570")) {
 			
 			destPath = AppConfig.getAppRootPath() + getCurrentDate() + "\\" + "unicef" +"_pending";
+		
+	    // UNOPS
+		}else if(org.equals("86702") || org.equals("86754")) {
 			
-		}else {
+			destPath = AppConfig.getAppRootPath() + getCurrentDate() + "\\" +"unops_"+org+"_pending";
+		}
+		else {
 			
 			loggMsg = "<Unknown Organization Detected> The organization name "+org+" is unknown to this software!";
 			System.out.println(loggMsg);
@@ -933,7 +948,11 @@ public class AppCommons {
 			
 			destPath = AppConfig.getAppRootPath() + getCurrentDate() + "\\" + "unicef" +"_pending";
 			
-		}else {
+		}else if(org.equals("86702") || org.equals("86754")) {
+			
+			destPath = AppConfig.getAppRootPath() + getCurrentDate() + "\\" +"unops_"+org+"_pending";
+		}
+		else {
 			
 			loggMsg = "<Unknown Organization Detected> The organization name "+org+" is unknown to this software!";
 			System.out.println(loggMsg);
@@ -953,9 +972,14 @@ public class AppCommons {
 		return destPath;
 	}
 	
+	/**
+	 * This method is used to display the process percentage
+	 * @throws InterruptedException
+	 */
 	public static void processFiles() throws InterruptedException {
 		
 		if(config.configSetup()) {
+			
 			loggMsg = "\nPlease wait, I am checking and processing the files ...";
 			System.out.println(loggMsg);
 			ActivityLogger.logActivity(loggMsg);
@@ -968,6 +992,7 @@ public class AppCommons {
 				System.out.print(loggMsg);
 				Thread.sleep(200);
 			}
+			
 			System.out.println("\n>>> Hey, I am done with processing the files");
 			loggMsg += "\n>>> Hey, I am done with processing the files";
 			ActivityLogger.logActivity(loggMsg);

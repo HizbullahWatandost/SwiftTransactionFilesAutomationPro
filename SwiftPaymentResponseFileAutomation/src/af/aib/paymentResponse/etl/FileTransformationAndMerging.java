@@ -44,7 +44,7 @@ public class FileTransformationAndMerging {
 
 			fileContent = fileContent.substring(0, fileContent.lastIndexOf("</pain.002.001.02>"));
 
-			// UNICEF file
+			// UNICEF & UNOPS file
 		} else if (fileContent.contains("</CstmrPmtStsRpt>")) {
 
 			fileContent = fileContent.substring(0, fileContent.lastIndexOf("</CstmrPmtStsRpt>"));
@@ -69,7 +69,7 @@ public class FileTransformationAndMerging {
 				fileContent = fileContent + " </pain.002.001.02>\n" + "</Document>";
 			}
 
-			// if it is UNICEF file then append the last UNICEF payment file closing tagn
+			// if it is UNICEF & UNOPS files then append the last UNICEF & UNOPS payment file closing tags
 		} else if (fileContent.contains("<CstmrPmtStsRpt>")) {
 
 			if (!fileContent.contains("</CstmrPmtStsRpt>")) {
@@ -82,7 +82,7 @@ public class FileTransformationAndMerging {
 
 	/**
 	 * This method is used to modify and copy the first transaction files from each
-	 * transactions releted folder to source base directory
+	 * transactions related folder to source base directory
 	 * 
 	 * @param org
 	 */
@@ -160,7 +160,7 @@ public class FileTransformationAndMerging {
 			fileContent = fileContent.substring(fileContent.indexOf("<TxInfAndSts>"),
 					fileContent.lastIndexOf("</pain.002.001.02>"));
 
-			// if it is UNICEF file then get the payment portion
+			// if it is UNICEF or UNOPS file then get the payment portion
 		} else if (fileContent.contains("<CstmrPmtStsRpt>") && fileContent.contains("<OrgnlPmtInfAndSts>")) {
 
 			fileContent = fileContent.substring(fileContent.indexOf("<OrgnlPmtInfAndSts>"),

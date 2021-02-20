@@ -15,7 +15,7 @@ import af.aib.paymentResponse.util.Banner;
 
 /**
  * This class just work like a robot which checks which payments file and ACK
- * files should be sent.
+ * files should be sent to Swift and which not.
  * 
  * @author Hizbullah Watandost
  *
