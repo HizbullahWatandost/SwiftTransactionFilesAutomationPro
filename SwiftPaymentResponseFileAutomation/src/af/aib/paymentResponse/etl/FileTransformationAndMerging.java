@@ -54,8 +54,8 @@ public class FileTransformationAndMerging {
 	}
 
 	/**
-	 * This method is used to add the last closing tags to the file content after other transactions are
-	 * appended to the transaction file.
+	 * This method is used to add the last closing tags to the file content after
+	 * other transactions are appended to the transaction file.
 	 * 
 	 * @param fileContent
 	 * @return
@@ -69,7 +69,8 @@ public class FileTransformationAndMerging {
 				fileContent = fileContent + " </pain.002.001.02>\n" + "</Document>";
 			}
 
-			// if it is UNICEF & UNOPS files then append the last UNICEF & UNOPS payment file closing tags
+			// if it is UNICEF & UNOPS files then append the last UNICEF & UNOPS payment
+			// file closing tags
 		} else if (fileContent.contains("<CstmrPmtStsRpt>")) {
 
 			if (!fileContent.contains("</CstmrPmtStsRpt>")) {
@@ -238,7 +239,7 @@ public class FileTransformationAndMerging {
 								+ firstFileName;
 						String firstFileDestPath = AppCommons.getTodaysTransactionFilesMergedFolder(org) + "\\"
 								+ firstFileName;
-						AppCommons.moveFile(true,firstFileSrcPath, firstFileDestPath);
+						AppCommons.moveFile(true, firstFileSrcPath, firstFileDestPath);
 
 					} catch (IOException exp) {
 

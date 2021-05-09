@@ -36,7 +36,7 @@ public class FileExtraction {
 	 * organization id or folder name i.e. 86154
 	 * 
 	 * @param org
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public static void extractResponseFileFromSwift(String org) throws InterruptedException {
 
@@ -60,9 +60,6 @@ public class FileExtraction {
 
 					for (File file : listOfFiles) {
 
-						// TODO - move the files from swift (src dir) to destination path (app path)
-						// Moving only xml files
-
 						if (AppCommons.isXMLFile(file.getName())) {
 
 							try {
@@ -75,7 +72,7 @@ public class FileExtraction {
 								bufferedWriter.close();
 
 							} catch (Exception exp) {
-								
+
 								errorMsg = "<File Content and Directory Error>" + exp.getClass().getSimpleName() + "->"
 										+ exp.getCause() + "->" + exp.getMessage();
 								System.out.println(errorMsg);
@@ -84,9 +81,9 @@ public class FileExtraction {
 						}
 
 					}
-					
+
 				} else {
-					
+
 					loggMsg = "<Empty Directory> No file found in " + dir + " directory.";
 					System.out.println(loggMsg);
 					ActivityLogger.logActivity(loggMsg);
@@ -302,7 +299,7 @@ public class FileExtraction {
 					}
 
 				} else {
-					
+
 					loggMsg = "<Empty Directory> No file found in " + dir + " directory.";
 					System.out.println(loggMsg);
 					ActivityLogger.logActivity(loggMsg);
@@ -374,7 +371,7 @@ public class FileExtraction {
 					}
 
 				} else {
-					
+
 					loggMsg = "<Empty Directory> No file found in " + dir + " directory.";
 					System.out.println(loggMsg);
 					ActivityLogger.logActivity(loggMsg);

@@ -78,7 +78,7 @@ public class ActivityLogger {
 	 * @param msg: the log message
 	 */
 	public static void logActivity(String msg) {
-		
+
 		logger.log(Level.FINE, msg);
 	}
 }

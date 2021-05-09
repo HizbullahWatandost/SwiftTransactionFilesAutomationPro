@@ -1,6 +1,11 @@
 package af.aib.paymentResponse.model;
 
-// Transaction file model class
-public class TransactionFile extends ResponseFile{
-	
+/**
+ * TransactionFile model class represents a Transaction (ACK) file.
+ * 
+ * @author hizwat
+ *
+ */
+public class TransactionFile extends ResponseFile {
+
 }

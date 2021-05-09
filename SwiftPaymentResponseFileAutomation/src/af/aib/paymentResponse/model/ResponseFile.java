@@ -1,14 +1,19 @@
 package af.aib.paymentResponse.model;
 
-// The model class for Response file
+/**
+ * The model class represent the response (File Level) file
+ * 
+ * @author hizwat
+ *
+ */
 public class ResponseFile {
-	
+
 	private String fileName;
-	// Response file OrgnlMsgId attribute 
+	// Response file OrgnlMsgId attribute
 	private String orgnlMsgId;
 	// Response file OrgnlNbOfTxs attribute
 	private int orgnlNbOfTxs;
-	
+
 	// Default constructor
 	public ResponseFile() {
 		super();
@@ -51,6 +56,4 @@ public class ResponseFile {
 		return "ResponseFile [fileName=" + fileName + ", orgnlMsgId=" + orgnlMsgId + ", orgnlNbOfTxs=" + orgnlNbOfTxs
 				+ "]";
 	}
-
-	
 }

@@ -7,6 +7,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -14,10 +18,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import af.aib.paymentResponse.config.AppConfig;
+import af.aib.paymentResponse.db.DBServiceImpl;
+import af.aib.paymentResponse.db.MSDBConnection;
 import af.aib.paymentResponse.log.ActivityLogger;
+import af.aib.paymentResponse.model.CustomPaymentFile;
+import af.aib.paymentResponse.model.RejectedPaymentFile;
 import af.aib.paymentResponse.model.ResponseFile;
 import af.aib.paymentResponse.model.TransactionFile;
-import af.aib.paymentResponse.robotcheck.AIBSwiftPaymentFileRobot;
+import af.aib.paymentResponse.robot.AIBSwiftPaymentFileRobot;
 
 /**
  * This class contains all the common methods used within the application
@@ -34,6 +42,8 @@ public class AppCommons {
 
 	// Logging message
 	private static String loggMsg = "";
+
+	private static MSDBConnection msdbConnection = new MSDBConnection();
 
 	/**
 	 * This method returns the current get and time which is used as sub folder name
@@ -288,7 +298,7 @@ public class AppCommons {
 		if (config.configSetup()) {
 
 			// Creating folder for duplicate response files
-			String directory = AppConfig.getAppRootPath() + getCurrentDate() + "\\" + org +"_pending";
+			String directory = AppConfig.getAppRootPath() + getCurrentDate() + "\\" + org + "_pending";
 			File fileWriterDir = new File(directory);
 
 			if (!fileWriterDir.exists()) {
@@ -326,13 +336,14 @@ public class AppCommons {
 	@Deprecated
 	public static String getTodaysTransactionFilesRejectedFolder(String org) {
 
-		String directory = AppConfig.getAppRootPath() + getCurrentDate() + "\\" + org +"_pending";
+		String directory = AppConfig.getAppRootPath() + getCurrentDate() + "\\" + org + "_pending";
 
 		File dir = new File(directory);
 
 		if (!dir.exists()) {
 
-			loggMsg = "<Today Response File Rejected/Warning Directory Not Found> Can not find the directory " + directory;
+			loggMsg = "<Today Response File Rejected/Warning Directory Not Found> Can not find the directory "
+					+ directory;
 			System.out.println(loggMsg);
 			ActivityLogger.logActivity(loggMsg);
 			directory = "";
@@ -451,8 +462,8 @@ public class AppCommons {
 		}
 
 		if (result != null) {
-			
-			if(log) {
+
+			if (log) {
 				loggMsg = "The file has been moved from " + src + " to " + dest + " successfully!";
 				System.out.println(loggMsg);
 				ActivityLogger.logActivity(loggMsg);
@@ -515,7 +526,7 @@ public class AppCommons {
 					.parseInt(fileContent.substring(fileContent.indexOf("<OrgnlNbOfTxs>") + "<OrgnlNbOfTxs>".length(),
 							fileContent.indexOf("</OrgnlNbOfTxs>")));
 		}
-		
+
 		responseFile.setFileName(Paths.get(filePath).getFileName().toString());
 		responseFile.setOrgnlMsgId(orgnlMsgId);
 		responseFile.setOrgnlNbOfTxs(orgnlNbOfTxs);
@@ -615,14 +626,16 @@ public class AppCommons {
 		}
 		return orgnlMsgId;
 	}
-	
+
 	/**
-	 * This method is used to get transaction or ACK files properties based on file path
+	 * This method is used to get transaction or ACK files properties based on file
+	 * path
+	 * 
 	 * @param filePath
 	 * @return
 	 */
 	public static TransactionFile getTransactionFileProperties(String filePath) {
-		
+
 		TransactionFile transactionFile = new TransactionFile();
 		String fileContent = AppCommons.readFileAllContent(filePath);
 
@@ -631,15 +644,14 @@ public class AppCommons {
 		int orgnlNbOfTxs = 0;
 
 		fileName = Paths.get(filePath).getFileName().toString();
-		
 
-		if(fileContent.contains("<OrgnlMsgId>")) {
+		if (fileContent.contains("<OrgnlMsgId>")) {
 			orgnlMsgId = fileContent.substring(fileContent.indexOf("<OrgnlMsgId>") + "<OrgnlMsgId>".length(),
 					fileContent.indexOf("</OrgnlMsgId>"));
 		}
-		
+
 		transactionFile.setOrgnlMsgId(orgnlMsgId);
-		
+
 		// UNDP file
 		if (fileContent.contains("<TxInfAndSts>")) {
 			orgnlNbOfTxs = fileContent.split("<TxInfAndSts>").length - 1;
@@ -648,67 +660,68 @@ public class AppCommons {
 		if (fileContent.contains("<OrgnlPmtInfAndSts>")) {
 			orgnlNbOfTxs = fileContent.split("<OrgnlPmtInfAndSts>").length - 1;
 		}
-		
+
 		transactionFile.setOrgnlNbOfTxs(orgnlNbOfTxs);
-		
+
 		transactionFile.setFileName(fileName);
 		transactionFile.setOrgnlMsgId(orgnlMsgId);
 		transactionFile.setOrgnlNbOfTxs(orgnlNbOfTxs);
 
 		return transactionFile;
 	}
-	
 
 	/**
 	 * Deleting the file after processing them
+	 * 
 	 * @param folder: received or success
-	 * @param org: undp or unicef
+	 * @param org:    undp or unicef
 	 */
 	public static void deleteFilesOfDirectory(String folder, String org) {
-		
+
 		if (config.configSetup()) {
 
-			String dir = AppConfig.getResponseFileSrcPath() + folder+"\\" + org + "\\";
+			String dir = AppConfig.getResponseFileSrcPath() + folder + "\\" + org + "\\";
 			File srcDir = new File(dir);
 
 			if (srcDir.exists()) {
 				// Get list of the files inside the directory
 				File[] listOfFiles = srcDir.listFiles();
-				if(listOfFiles != null) {
-					for(File f: listOfFiles) {
-						if(f.isDirectory()) {
+				if (listOfFiles != null) {
+					for (File f : listOfFiles) {
+						if (f.isDirectory()) {
 							deleteFilesOfDirectory(folder, org);
-						}else {
+						} else {
 							f.delete();
 						}
 					}
-				}	
+				}
 			}
 		}
 	}
-	
+
 	/**
-	 * Moving the file after processing them
+	 * Moving the file to uploaded folder after processing them
+	 * 
 	 * @param folder: received or success
-	 * @param org: undp or unicef or unops
+	 * @param org:    undp or unicef or unops
 	 */
 	public static void moveFilesToUploadedFolder(String folder, String org) {
-		
+
 		if (config.configSetup()) {
 
-			String sDir = AppConfig.getResponseFileSrcPath() + folder+"\\" + org +"\\";
+			String sDir = AppConfig.getResponseFileSrcPath() + folder + "\\" + org + "\\";
 			File srcDir = new File(sDir);
-			
-			String dDir = AppConfig.getResponseFileSrcPath() + folder+"\\" + org + "\\" +"uploaded" +"\\";
+
+			String dDir = AppConfig.getResponseFileSrcPath() + folder + "\\" + org + "\\" + "uploaded" + "\\";
 			File destDir = new File(dDir);
 
 			if (srcDir.exists()) {
-				
-				if(!destDir.exists()) {
-					
+
+				if (!destDir.exists()) {
+
 					destDir.mkdirs();
 				}
-				
+
 				// Get list of the files inside the directory
 				File[] listOfFiles = srcDir.listFiles();
 				if (listOfFiles != null && listOfFiles.length > 0) {
@@ -729,184 +742,291 @@ public class AppCommons {
 							}
 						}
 					}
-				}	
+				}
 			}
 		}
 	}
-	
+
 	/**
-	 * Moving the warning and rejected payment files back to the source folder
+	 * Getting the rejected and warning files and moving them to the related pending
+	 * folder
+	 * 
 	 * @param folder
 	 * @param org
 	 */
-	public static void movingWarningAndRejectedFilesBack(String folder, String org) {
-		
+	public static void rejectedOrWarningFileAdvanceSearch(String folder, String org) {
+
 		if (config.configSetup()) {
-			
+
 			// Path of today pending folder
-			String pendingFilesPath = AppCommons.getTodayPendingFolder(org);
-			File pendingFilesDir = new File(pendingFilesPath);
-			
-			// Path of the source folder from where we read the files
-			String srcPathCopy = AppConfig.getResponseFileSrcPath() + folder+"\\" + org + "\\";
-			
-			// to copy the file
-			FileWriter fileWriterPath = null;
-			BufferedWriter bufferedWriter = null;
-			
-			// If the method is called on received folder 
-			if(folder.equals("received")) {
-				
-				// Get today (processed) files from received folder 
+			String pendingFilesPath = getTodayPendingFolder(org);
+
+			// If the method is called on received folder
+			if (folder.equals("received")) {
+
+				// Get today (processed) files from received folder
 				String fileLevelSrc = getTodaysResponseFilesFolder(org);
 				File fileLevelSrcDir = new File(fileLevelSrc);
-				
-				// Finding rejected or warning payment files 
+
+				// Finding rejected or warning payment files
 				HashMap<String, Integer> rejectedAndWarningPaymentFiles = AIBSwiftPaymentFileRobot
 						.getRejectedAndWarningPaymentFilesProperties(org);
 
 				for (Map.Entry<String, Integer> rejectedFile : rejectedAndWarningPaymentFiles.entrySet()) {
-					
-					int xmlIndex = rejectedFile.getKey().lastIndexOf(".xml")+(".xml").length();
+
+					int xmlIndex = rejectedFile.getKey().lastIndexOf(".xml") + (".xml").length();
 					String fileName = rejectedFile.getKey().substring(0, xmlIndex);
-						
-					// Moving the file to today's pending folder to trace the pendings (used for safety purpose)
-					if(fileLevelSrcDir.exists()) {
-						
+
+					// Moving the file to today's pending folder to trace the pendings (used for
+					// safety purpose)
+					if (fileLevelSrcDir.exists()) {
+
 						if (AppCommons.isXMLFile(fileName)) {
 
 							try {
 								// moving the file back to the source path
-								AppCommons.moveFile(false, fileLevelSrc+"\\"+fileName, pendingFilesPath+"\\"+fileName);
+								AppCommons.moveFile(false, fileLevelSrc + "\\" + fileName,
+										pendingFilesPath + "\\" + fileName);
 
 							} catch (Exception exp) {
-								
+
 								errorMsg = "<File Movement Error>" + exp.getClass().getSimpleName() + "->"
 										+ exp.getCause() + "->" + exp.getMessage();
 								System.out.println(errorMsg);
 								ActivityLogger.logActivity(errorMsg);
 							}
 						}
-					}	
+					}
 				}
-				
-				
-				// Copying the file level rejected/warning/pending files back to the source folder to be processed next day 
-				if(pendingFilesDir.exists()) {
-					// Get list of the files inside the directory
-					File[] listOfFiles = pendingFilesDir.listFiles();
-					
-					if(listOfFiles != null) {
-						
-						for(File file: listOfFiles) {
-							
-							if (AppCommons.isXMLFile(file.getName())) {
-								
-								// If it is file level then, 
-								if(file.getName().contains("FileLevel.xml")) {
-									
-									try {
-					
-										String fileContent = readFileAllContent(file.toString());
-										fileWriterPath = new FileWriter(srcPathCopy + "\\" + file.getName());
-										bufferedWriter = new BufferedWriter(fileWriterPath);
-										bufferedWriter.write(fileContent);
-										bufferedWriter.close();
 
+			}
+
+			// If the method is called on success files
+			if (folder.equals("success")) {
+				// copying the rejected and warning ack file
+				String sDir = getTodayPendingFolder(org);
+				File srcDir = new File(sDir);
+
+				if (srcDir.exists()) {
+					// Get list of the files inside the directory
+					File[] listOfFiles = srcDir.listFiles();
+					if (listOfFiles != null) {
+						for (File file : listOfFiles) {
+							if (AppCommons.isXMLFile(file.getName())) {
+								// If it is ack files then,
+								if (!file.getName().contains("FileLevel.xml")) {
+
+									try {
+
+										// moving the file back to the source path
+										AppCommons.moveFile(false, file.toString(),
+												pendingFilesPath + "\\" + file.getName());
 									} catch (Exception exp) {
-										
-										errorMsg = "<File Content and Directory Error>" + exp.getClass().getSimpleName() + "->"
-												+ exp.getCause() + "->" + exp.getMessage();
+
+										errorMsg = "<File Content and Directory Error>" + exp.getClass().getSimpleName()
+												+ "->" + exp.getCause() + "->" + exp.getMessage();
 										System.out.println(errorMsg);
 										ActivityLogger.logActivity(errorMsg);
-										
+
 									}
 								}
 							}
 						}
 					}
-				}	
+				}
 			}
-			
-			// If the method is called on success files 
-			if(folder.equals("success")) {
-				// copying the rejected and warning ack file
-				String sDir = getTodayPendingFolder(org);
-				File srcDir = new File(sDir);
+		}
+	}
 
-				fileWriterPath = null;
-				bufferedWriter = null;
+	/**
+	 * Double checking the rejected and warning files inside pending folder and in
+	 * case of match based on database, send them to Swift same as other complete
+	 * and matched file to avoid business process delay and customer complaints.
+	 * Only the matched file will be send to avoid delay in ACK file. The new or
+	 * unmatched file will remain in pending status in pending folder and will be
+	 * rechecked in next software process.
+	 * 
+	 * @param org
+	 */
+	public static void rectifyingWarningAndRejectedFiles(String org) {
 
-				if (srcDir.exists()) {
-					// Get list of the files inside the directory
-					File[] listOfFiles = srcDir.listFiles();
-					if(listOfFiles != null) {
-						
-						for(File file: listOfFiles) {
-							
+		if (config.configSetup()) {
+
+			String srcPath = getTodayPendingFolder(org);
+			String destPath;
+			File srcDir = new File(srcPath);
+
+			if (srcDir.exists()) {
+				File[] filesList = srcDir.listFiles();
+				ResponseFile responseFile;
+				CustomPaymentFile cpf;
+				for (File file : filesList) {
+
+					// check its file level whether exist or not
+					responseFile = getFileProperties(file.toString());
+					cpf = DBServiceImpl.getPaymentFile(responseFile.getOrgnlMsgId());
+					// If there is a record with its reference in database
+					if (cpf != null && cpf.getBatchFileName() != null) {
+						// If it is stored in database in case of FileLevel or its FileLevel exist in
+						// database in case it is ACK file
+						if (cpf.getBatchFileName().equals(file.getName())
+								|| (cpf.getAckMergedFileName().contains(file.getName())
+										&& cpf.getBatchFileName() != null)) {
+
 							if (AppCommons.isXMLFile(file.getName())) {
-								
-								// If is ack files then, 
-								if(!file.getName().contains("FileLevel.xml")) {
-									
-									try {
 
-										// Reading the file and removing the schema tag if it is UNDP file
-										String fileContent = readFileAllContent(file.toString());
-										fileWriterPath = new FileWriter(srcPathCopy + "\\" + file.getName());
-										bufferedWriter = new BufferedWriter(fileWriterPath);
-										bufferedWriter.write(fileContent);
-										bufferedWriter.close();
+								try {
+									// If it is FileLeve then move it back to the source path
+									if (file.getName().contains("FileLevel")) {
+										destPath = getTodaysResponseFilesFolder(org);
+										File dDir = new File(destPath);
 
-									} catch (Exception exp) {
-										
-										errorMsg = "<File Content and Directory Error>" + exp.getClass().getSimpleName() + "->"
-												+ exp.getCause() + "->" + exp.getMessage();
-										System.out.println(errorMsg);
-										ActivityLogger.logActivity(errorMsg);
-										
+										if (!dDir.exists()) {
+											if (dDir.mkdirs()) {
+												loggMsg = "<Creating Folder For File Level> A folder " + destPath
+														+ " created sccessfully";
+												System.out.println(loggMsg);
+												ActivityLogger.logActivity(loggMsg);
+											} else {
+												loggMsg = "<Creating Folder For File Level> Failed to create folder "
+														+ destPath;
+												System.out.println(loggMsg);
+												ActivityLogger.logActivity(loggMsg);
+											}
+										}
+
+										AppCommons.moveFile(false, srcPath + "\\" + file.getName(),
+												destPath + "\\" + file.getName());
 									}
+									// If it is ACK file
+									else {
+										destPath = getTodaysTransactionFilesMergedFolder(org);
+										File dDir = new File(destPath);
+										if (!dDir.exists()) {
+											if (dDir.mkdirs()) {
+												loggMsg = "<Creating Folder For Merged ACK Files> A folder " + destPath
+														+ " created sccessfully";
+												System.out.println(loggMsg);
+												ActivityLogger.logActivity(loggMsg);
+
+											} else {
+												loggMsg = "<Creating Folder For Merged ACK Files> Failed to create folder "
+														+ destPath;
+												System.out.println(loggMsg);
+												ActivityLogger.logActivity(loggMsg);
+											}
+
+										}
+										AppCommons.moveFile(false, srcPath + "\\" + file.getName(),
+												destPath + "\\" + file.getName());
+									}
+
+								} catch (Exception exp) {
+
+									errorMsg = "<File Movement Error>" + exp.getClass().getSimpleName() + "->"
+											+ exp.getCause() + "->" + exp.getMessage();
+									System.out.println(errorMsg);
+									ActivityLogger.logActivity(errorMsg);
 								}
 							}
 						}
-					}	
+
+					}
+
 				}
-			}	
+			} else {
+				errorMsg = "<Pending Paht not Found> There is no pending folder with " + srcPath + " name";
+				System.out.println(errorMsg);
+				ActivityLogger.logActivity(errorMsg);
+			}
+		}
+
+	}
+
+	/**
+	 * Moving the rejected or warning files (the files which is new and their
+	 * FileLevel doesn't exist). These files will be checked in next trail alongside
+	 * with other new files tomorrow
+	 * 
+	 * @param org
+	 */
+	public static void moveRejectedOrWarningFilesBackToSwift(String org) {
+
+		// Copying the file level rejected/warning/pending files back to the source
+		// folder to be processed next day
+		String srcPath = getTodayPendingFolder(org);
+		File pendingFilesDir = new File(srcPath);
+		String destPath;
+		if (pendingFilesDir.exists()) { // Get list of the files inside the directory
+			File[] listOfFiles = pendingFilesDir.listFiles();
+
+			if (listOfFiles != null) {
+				for (File file : listOfFiles) {
+					if (AppCommons.isXMLFile(file.getName())) {
+						if (file.getName().contains("FileLevel")) {
+							destPath = AppConfig.getResponseFileSrcPath() + "received\\" + org + "\\";
+						} else {
+							destPath = AppConfig.getResponseFileSrcPath() + "success\\" + org + "\\";
+						}
+						try {
+
+							String fileContent = readFileAllContent(file.toString());
+							FileWriter fileWriterPath = new FileWriter(destPath + "\\" + file.getName());
+							BufferedWriter bufferedWriter = new BufferedWriter(fileWriterPath);
+							bufferedWriter.write(fileContent);
+							bufferedWriter.close();
+
+						} catch (Exception exp) {
+
+							errorMsg = "<File Content and Directory Error>" + exp.getClass().getSimpleName() + "->"
+									+ exp.getCause() + "->" + exp.getMessage();
+							System.out.println(errorMsg);
+							ActivityLogger.logActivity(errorMsg);
+
+						}
+					}
+				}
+			} else {
+				loggMsg = "<No Pending or Rejected File> there is no pending or rejected file.";
+				System.out.println(errorMsg);
+				ActivityLogger.logActivity(errorMsg);
+			}
 		}
 	}
-	
+
 	/**
-	 * this method creates a folder for today's pending payment and transaction files
+	 * this method creates a folder for today's pending payment and transaction
+	 * files
+	 * 
 	 * @param org
 	 */
 	public static void createTodayPendingFolder(String org) {
-		
+
 		String destPath = "";
-		
+
 		// UNDP
-		if(org.equals("86154")) {
-			
-			destPath = AppConfig.getAppRootPath() + getCurrentDate() + "\\" + "undp" +"_pending";
-		
-		// UNICEF
-		}else if(org.equals("86570")) {
-			
-			destPath = AppConfig.getAppRootPath() + getCurrentDate() + "\\" + "unicef" +"_pending";
-		
-	    // UNOPS
-		}else if(org.equals("86702") || org.equals("86754")) {
-			
-			destPath = AppConfig.getAppRootPath() + getCurrentDate() + "\\" +"unops_"+org+"_pending";
-		}
-		else {
-			
-			loggMsg = "<Unknown Organization Detected> The organization name "+org+" is unknown to this software!";
+		if (org.equals("86154")) {
+
+			destPath = AppConfig.getAppRootPath() + getCurrentDate() + "\\" + "undp" + "_pending";
+
+			// UNICEF
+		} else if (org.equals("86570")) {
+
+			destPath = AppConfig.getAppRootPath() + getCurrentDate() + "\\" + "unicef" + "_pending";
+
+			// UNOPS
+		} else if (org.equals("86702") || org.equals("86754")) {
+
+			destPath = AppConfig.getAppRootPath() + getCurrentDate() + "\\" + "unops_" + org + "_pending";
+		} else {
+
+			loggMsg = "<Unknown Organization Detected> The organization name " + org + " is unknown to this software!";
 			System.out.println(loggMsg);
 			ActivityLogger.logActivity(loggMsg);
 		}
-		
+
 		File destDir = new File(destPath);
-		
+
 		if (!destDir.exists()) {
 
 			if (destDir.mkdirs()) {
@@ -918,7 +1038,8 @@ public class AppCommons {
 
 			} else {
 
-				loggMsg = "<Creating Rejected Payment/Transaction File Folder Error> Failed to create folder " + destPath;
+				loggMsg = "<Creating Rejected Payment/Transaction File Folder Error> Failed to create folder "
+						+ destPath;
 				System.out.println(loggMsg);
 				ActivityLogger.logActivity(loggMsg);
 			}
@@ -930,31 +1051,32 @@ public class AppCommons {
 			ActivityLogger.logActivity(loggMsg);
 		}
 	}
-	
+
 	/**
-	 * this method is used to get the today's pending payment and transaction files folder
+	 * this method is used to get the today's pending payment and transaction files
+	 * folder
+	 * 
 	 * @param org
 	 * @return
 	 */
 	public static String getTodayPendingFolder(String org) {
-		
+
 		String destPath = "";
-		
-		if(org.equals("86154")) {
-			
-			destPath = AppConfig.getAppRootPath() + getCurrentDate() + "\\" + "undp" +"_pending";
-			
-		}else if(org.equals("86570")) {
-			
-			destPath = AppConfig.getAppRootPath() + getCurrentDate() + "\\" + "unicef" +"_pending";
-			
-		}else if(org.equals("86702") || org.equals("86754")) {
-			
-			destPath = AppConfig.getAppRootPath() + getCurrentDate() + "\\" +"unops_"+org+"_pending";
-		}
-		else {
-			
-			loggMsg = "<Unknown Organization Detected> The organization name "+org+" is unknown to this software!";
+
+		if (org.equals("86154")) {
+
+			destPath = AppConfig.getAppRootPath() + getCurrentDate() + "\\" + "undp" + "_pending";
+
+		} else if (org.equals("86570")) {
+
+			destPath = AppConfig.getAppRootPath() + getCurrentDate() + "\\" + "unicef" + "_pending";
+
+		} else if (org.equals("86702") || org.equals("86754")) {
+
+			destPath = AppConfig.getAppRootPath() + getCurrentDate() + "\\" + "unops_" + org + "_pending";
+		} else {
+
+			loggMsg = "<Unknown Organization Detected> The organization name " + org + " is unknown to this software!";
 			System.out.println(loggMsg);
 			ActivityLogger.logActivity(loggMsg);
 		}
@@ -963,7 +1085,7 @@ public class AppCommons {
 
 		if (!destDir.exists()) {
 
-			loggMsg = "\n<Today "+org+"_pending folder Not Found> Can not find the directory " + destPath;
+			loggMsg = "\n<Today " + org + "_pending folder Not Found> Can not find the directory " + destPath;
 			System.out.println(loggMsg);
 			ActivityLogger.logActivity(loggMsg);
 			destPath = "";
@@ -971,31 +1093,102 @@ public class AppCommons {
 
 		return destPath;
 	}
-	
+
 	/**
 	 * This method is used to display the process percentage
+	 * 
 	 * @throws InterruptedException
 	 */
 	public static void processFiles() throws InterruptedException {
-		
-		if(config.configSetup()) {
-			
+
+		if (config.configSetup()) {
+
 			loggMsg = "\nPlease wait, I am checking and processing the files ...";
 			System.out.println(loggMsg);
 			ActivityLogger.logActivity(loggMsg);
-			
+
 			loggMsg = ".";
-			for(int i = 0; i <= 100; i++) {
-				
-				if(i == 0 || i == 25 || i == 50 || i == 75 || i == 100) loggMsg = i +"%";
-				else loggMsg = ".";
+			for (int i = 0; i <= 100; i++) {
+
+				if (i == 0 || i == 25 || i == 50 || i == 75 || i == 100)
+					loggMsg = i + "%";
+				else
+					loggMsg = ".";
 				System.out.print(loggMsg);
 				Thread.sleep(200);
 			}
-			
+
 			System.out.println("\n>>> Hey, I am done with processing the files");
 			loggMsg += "\n>>> Hey, I am done with processing the files";
 			ActivityLogger.logActivity(loggMsg);
-		}	
+		}
+	}
+
+	/**
+	 * This method is used to collect the matched file (FileLevel + ACK file) in one
+	 * collection
+	 * 
+	 * @param filesCollection
+	 * @return
+	 */
+	public static ArrayList<CustomPaymentFile> collectMatchedFiles(ArrayList<ArrayList<String>> filesCollection) {
+
+		ArrayList<CustomPaymentFile> paymentFiles = new ArrayList<>();
+		CustomPaymentFile customPaymentFile;
+		String fName = "";
+
+		for (int i = 0; i < filesCollection.size(); i++) {
+			customPaymentFile = new CustomPaymentFile();
+			customPaymentFile.setPaymentRef(
+					filesCollection.get(i).get(0).substring(filesCollection.get(i).get(0).indexOf("|") + 2));
+			customPaymentFile.setBatchFileName(
+					filesCollection.get(i).get(0).substring(0, filesCollection.get(i).get(0).indexOf("|") - 1));
+			customPaymentFile.setNoOfTxn(Integer.parseInt(filesCollection.get(i).get(1)));
+			customPaymentFile.setAckMergedFileName(
+					filesCollection.get(i).get(2).substring(0, filesCollection.get(i).get(2).indexOf("|") - 1));
+			customPaymentFile.setNoOfScTxn(Integer.parseInt(filesCollection.get(i).get(3)));
+			customPaymentFile.setNoOfPdTxn(
+					Integer.parseInt(filesCollection.get(i).get(1)) - Integer.parseInt(filesCollection.get(i).get(3)));
+			customPaymentFile
+					.setInsDate(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()));
+
+			fName = filesCollection.get(i).get(0).substring(0, filesCollection.get(i).get(0).indexOf("|") - 1);
+			int noOfPdTxn = Integer.parseInt(filesCollection.get(i).get(1))
+					- Integer.parseInt(filesCollection.get(i).get(3));
+			customPaymentFile.setBatchFileSent(false);
+			fName = filesCollection.get(i).get(2).substring(0, filesCollection.get(i).get(2).indexOf("|") - 1);
+			customPaymentFile.setAckFileSent(false);
+			customPaymentFile
+					.setLastUpdateDate(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()));
+			paymentFiles.add(customPaymentFile);
+		}
+
+		return paymentFiles;
+	}
+
+	/**
+	 * This method is used to collect the rejected files in one collection
+	 * 
+	 * @param filesCollection
+	 * @return
+	 */
+	public static ArrayList<RejectedPaymentFile> collectRejectedFiles(HashMap<String, Integer> filesCollection) {
+
+		ArrayList<RejectedPaymentFile> rejectedFiles = new ArrayList<RejectedPaymentFile>();
+		RejectedPaymentFile rejectedPaymentFile;
+
+		for (Map.Entry<String, Integer> rejectedFile : filesCollection.entrySet()) {
+			rejectedPaymentFile = new RejectedPaymentFile();
+			rejectedPaymentFile.setPaymentRef(rejectedFile.getKey().substring(rejectedFile.getKey().indexOf("|") + 2));
+			rejectedPaymentFile.setFileName(rejectedFile.getKey().substring(0, rejectedFile.getKey().indexOf("|") - 1));
+			rejectedPaymentFile.setNoOfTxn(rejectedFile.getValue());
+			rejectedPaymentFile
+					.setInsDate(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()));
+			rejectedPaymentFile.setFileSend(false);
+
+			rejectedFiles.add(rejectedPaymentFile);
+		}
+
+		return rejectedFiles;
 	}
 }

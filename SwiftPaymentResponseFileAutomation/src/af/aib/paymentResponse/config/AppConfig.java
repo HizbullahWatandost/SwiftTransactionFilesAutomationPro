@@ -112,4 +112,16 @@ public class AppConfig {
 	public static String getAppBannerPath() {
 		return (prop.getProperty("app_banner_path"));
 	}
+	
+	public static String getDbURL() {
+		return (prop.getProperty("DBUrl"));
+	}
+
+	public static String getDbUserName() {
+		return (prop.getProperty("DBUserName"));
+	}
+
+	public static String getDbPassword() {
+		return (prop.getProperty("DBPassword"));
+	}
 }

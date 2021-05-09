@@ -13,5 +13,6 @@
 	<classpathentry kind="lib" path="D:/Software/java related developments/java plugins and libraries/jaxb required jar files/jaxb-core/jaxb-core-2.3.0.jar"/>
 	<classpathentry kind="lib" path="D:/Software/java related developments/java plugins and libraries/jaxb required jar files/jaxb-core/txw2-2.3.0.jar"/>
 	<classpathentry kind="lib" path="D:/Software/java related developments/java plugins and libraries/jaxb required jar files/jaxb-impl/jaxb-impl-2.3.0.jar"/>
+	<classpathentry kind="lib" path="D:/Software/java related developments/java plugins and libraries/SQL Server Database JDBC jar files/sql server jdbc_8.2.0.0_enu/sqljdbc_8.2/enu/mssql-jdbc-8.2.0.jre11.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

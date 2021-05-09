@@ -1,35 +1,17 @@
 package af.aib.paymentResponse.util;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
-import java.net.URL;
-import java.nio.file.Paths;
-import java.util.stream.Collectors;
-
-
 
 import af.aib.paymentResponse.config.AppConfig;
 import af.aib.paymentResponse.log.ActivityLogger;
 
-
 public class Banner {
-	
-	private String softwareName,
-	SoftwareVersion,
-	ownerCompany,
-	developerName,
-	developerEmail,
-	poweredBy;
-	
+
+	private String softwareName, SoftwareVersion, ownerCompany, developerName, developerEmail, poweredBy;
+
 	private static String bannerFileName = "appBanner.txt";
 	private static ClassLoader bannerClassLoader = null;
-	
-	
+
 	static AppConfig config = new AppConfig();
 
 	private static String loggMsg = "";
@@ -49,7 +31,7 @@ public class Banner {
 		this.developerEmail = developerEmail;
 		this.poweredBy = poweredBy;
 	}
-	
+
 	public String getSoftwareName() {
 		return softwareName;
 	}
@@ -138,38 +120,37 @@ public class Banner {
 		Banner.file = file;
 	}
 
-	public static void printBanner()
-	{	
-			file = new File(AppConfig.getAppBannerPath()+"appBanner.txt");
-			loggMsg = AppCommons.readFileAllContent(file.toString());
-			loggMsg += "\n{Software Name} -> "+AppConfig.getAppName();
-			loggMsg += "\n{Software Version} -> "+AppConfig.getAppVersion();
-			loggMsg += "\n{Software Release Date} -> "+AppConfig.getAppReleaseDate();
-			loggMsg += "\n{Software Latest Maintaince} -> "+AppConfig.getAppMaintainanceDate();
-			loggMsg += "\n{Software Owner} -> "+AppConfig.getAppOwner();
-			loggMsg += "\n{Software Developer} -> "+AppConfig.getAppDeveloperName();
-			loggMsg += "\n{Software Developer Email} -> "+AppConfig.getAppDeveloperEmail();
-			loggMsg += "\n{Software Powered By} -> "+AppConfig.getAppPoweredBy();
-			loggMsg += "\n==================================************************************==================================";
-			
-			System.out.println(loggMsg);
-			ActivityLogger.logActivity("\n"+loggMsg);
+	public static void printBanner() {
+		file = new File(AppConfig.getAppBannerPath() + "appBanner.txt");
+		loggMsg = AppCommons.readFileAllContent(file.toString());
+		loggMsg += "\n{Software Name} -> " + AppConfig.getAppName();
+		loggMsg += "\n{Software Version} -> " + AppConfig.getAppVersion();
+		loggMsg += "\n{Software Release Date} -> " + AppConfig.getAppReleaseDate();
+		loggMsg += "\n{Software Latest Maintaince} -> " + AppConfig.getAppMaintainanceDate();
+		loggMsg += "\n{Software Owner} -> " + AppConfig.getAppOwner();
+		loggMsg += "\n{Software Developer} -> " + AppConfig.getAppDeveloperName();
+		loggMsg += "\n{Software Developer Email} -> " + AppConfig.getAppDeveloperEmail();
+		loggMsg += "\n{Software Powered By} -> " + AppConfig.getAppPoweredBy();
+		loggMsg += "\n==================================************************************==================================";
+
+		System.out.println(loggMsg);
+		ActivityLogger.logActivity("\n" + loggMsg);
 
 	}
-	
-	public static boolean appConfigCheck(){
-				
-		file = new File(AppConfig.getAppBannerPath()+"appBanner.txt");
-				
-		if(!file.exists()) {
+
+	public static boolean appConfigCheck() {
+
+		file = new File(AppConfig.getAppBannerPath() + "appBanner.txt");
+
+		if (!file.exists()) {
 			return false;
 		}
-		if((!AppConfig.getAppDeveloperName().toLowerCase().contains("WA".toLowerCase())) || 
-		   (!AppConfig.getAppDeveloperName().toLowerCase().contains("HI".toLowerCase()))) {
+		if ((!AppConfig.getAppDeveloperName().toLowerCase().contains("WA".toLowerCase()))
+				|| (!AppConfig.getAppDeveloperName().toLowerCase().contains("HI".toLowerCase()))) {
 			return false;
 		}
-		if((!AppConfig.getAppDeveloperEmail().toLowerCase().contains("10".toLowerCase())) ||
-		   (!AppConfig.getAppPoweredBy().toLowerCase().contains("SoftAuto".toLowerCase()))) {
+		if ((!AppConfig.getAppDeveloperEmail().toLowerCase().contains("10".toLowerCase()))
+				|| (!AppConfig.getAppPoweredBy().toLowerCase().contains("SoftAuto".toLowerCase()))) {
 			return false;
 		}
 		return true;
