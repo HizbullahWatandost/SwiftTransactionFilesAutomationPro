@@ -45,7 +45,7 @@ public class AIBSwiftPaymentFileRobot {
 	 * @return
 	 * @throws InterruptedException
 	 */
-	public static HashMap<String, Integer> CheckNoOfPaymentsInFile(String org) {
+	public static HashMap<String, Integer> checkNoOfPaymentsInFile(String org) {
 
 		// It stores no of payments in key:value pair
 		HashMap<String, Integer> noOfPaymentsInFile = new HashMap<String, Integer>();
@@ -106,7 +106,7 @@ public class AIBSwiftPaymentFileRobot {
 	 * @return
 	 * @throws InterruptedException
 	 */
-	public static HashMap<String, Integer> CheckNoOfTxnInAckFile(String org) {
+	public static HashMap<String, Integer> checkNoOfTxnInAckFile(String org) {
 
 		// It stores no of payments in key:value pair
 		HashMap<String, Integer> noOfTxnInAckFile = new HashMap<String, Integer>();
@@ -159,7 +159,7 @@ public class AIBSwiftPaymentFileRobot {
 	}
 
 	/**
-	 * this method is used to return number of matched files (payment and
+	 * this method is used to return number of matched files pair (payment and
 	 * transaction - ACK) files, the files which orgnlMsgId matches
 	 * 
 	 * @param org
@@ -170,8 +170,8 @@ public class AIBSwiftPaymentFileRobot {
 
 		ArrayList<ArrayList<String>> matchedFilesProps = new ArrayList<ArrayList<String>>();
 
-		HashMap<String, Integer> paymentFiles = CheckNoOfPaymentsInFile(org);
-		HashMap<String, Integer> ackFiles = CheckNoOfTxnInAckFile(org);
+		HashMap<String, Integer> paymentFiles = checkNoOfPaymentsInFile(org);
+		HashMap<String, Integer> ackFiles = checkNoOfTxnInAckFile(org);
 
 		paymentFiles.forEach((pKey, pValue) -> {
 
@@ -217,7 +217,7 @@ public class AIBSwiftPaymentFileRobot {
 	 */
 	public static HashMap<String, Integer> getRejectedAndWarningPaymentFilesProperties(String org) {
 
-		HashMap<String, Integer> allPaymentFiles = CheckNoOfPaymentsInFile(org);
+		HashMap<String, Integer> allPaymentFiles = checkNoOfPaymentsInFile(org);
 
 		for (int i = 0; i < matchPaymentFileAndAckFilesProperties(org).size(); i++) {
 			allPaymentFiles.remove(matchPaymentFileAndAckFilesProperties(org).get(i).get(0));
@@ -288,7 +288,8 @@ public class AIBSwiftPaymentFileRobot {
 	}
 
 	/**
-	 * This method is used to store the matched payment files to database
+	 * This method is used to store the matched payment file pair (FileLevel + ACK)
+	 * to database
 	 * 
 	 * @param paymentFiles
 	 */
@@ -338,6 +339,8 @@ public class AIBSwiftPaymentFileRobot {
 							DBServiceImpl.updatePaymentFile(cpf.getPaymentRef(), paymentFile);
 						}
 
+						// If the file pair is completed, all its ACKs are received (no of txn = no of
+						// sc txn)
 					} else if (cpf.isCompleted()) {
 						loggMsg = "<Complete Payment File> file is completed and alread sent to Swift";
 						System.out.println(loggMsg);
@@ -424,7 +427,7 @@ public class AIBSwiftPaymentFileRobot {
 								ncpf.setNoOfScTxn(rejectedFile.getNoOfTxn());
 								ncpf.setNoOfPdTxn(cpf.getNoOfTxn() - rejectedFile.getNoOfTxn());
 
-								// If there is already ACK file with that payment reference in database
+								// If there is already an ACK file with that payment reference in database
 							} else {
 								// If the new ACK file contains a complete no of SC txn.
 								if (ncpf.getNoOfTxn() == rejectedFile.getNoOfTxn()) {
@@ -515,7 +518,7 @@ public class AIBSwiftPaymentFileRobot {
 
 								cpf.setBatchFileSent(true);
 								DBServiceImpl.updatePaymentFile(cpf.getPaymentRef(), cpf);
-								loggMsg = "<Payment File to Swift> the payment file '" + file.getName()
+								loggMsg = "<Sending FileLevel File to Swift> the payment file '" + file.getName()
 										+ "' is has been sent to Swift successfully!";
 								System.out.println(loggMsg);
 								ActivityLogger.logActivity(loggMsg);
@@ -530,7 +533,7 @@ public class AIBSwiftPaymentFileRobot {
 
 								cpf.setAckFileSent(true);
 								DBServiceImpl.updatePaymentFile(cpf.getPaymentRef(), cpf);
-								loggMsg = "<ACK File to Swift> the ACK file '" + file.getName()
+								loggMsg = "<Sending ACK File to Swift> the ACK file '" + file.getName()
 										+ "' is has been sent to Swift successfully!";
 								System.out.println(loggMsg);
 								ActivityLogger.logActivity(loggMsg);
@@ -555,7 +558,7 @@ public class AIBSwiftPaymentFileRobot {
 
 			}
 		} else {
-			errorMsg = "<Empty Directory> no files found in directory " + srcPath;
+			errorMsg = "<Empty Directory> no files found in directory!" + srcPath;
 			System.out.println(errorMsg);
 			ActivityLogger.logActivity(errorMsg);
 		}

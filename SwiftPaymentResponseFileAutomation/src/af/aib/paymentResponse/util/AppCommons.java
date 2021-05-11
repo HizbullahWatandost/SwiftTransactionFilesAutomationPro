@@ -456,7 +456,7 @@ public class AppCommons {
 
 		} catch (IOException e) {
 
-			loggMsg = "Exception while moving the file: " + e.getMessage();
+			loggMsg = "<Moving file Error> Exception while moving the file: " + e.getMessage();
 			System.out.println(loggMsg);
 			ActivityLogger.logActivity(loggMsg);
 		}
@@ -464,14 +464,15 @@ public class AppCommons {
 		if (result != null) {
 
 			if (log) {
-				loggMsg = "The file has been moved from " + src + " to " + dest + " successfully!";
+				loggMsg = "<Moving File Success> The file has been moved from " + src + " to " + dest
+						+ " successfully!";
 				System.out.println(loggMsg);
 				ActivityLogger.logActivity(loggMsg);
 			}
 
 		} else {
 
-			loggMsg = "The file movement from " + src + " to " + dest + " failed!";
+			loggMsg = "<Moving File Fail> The file movement from " + src + " to " + dest + " failed!";
 			System.out.println(loggMsg);
 			ActivityLogger.logActivity(loggMsg);
 		}
@@ -493,7 +494,7 @@ public class AppCommons {
 		if (fileContent.contains("<BkPtyId>GUS00352</BkPtyId>")) {
 
 			fileContent = fileContent.replace("xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" ", "");
-			loggMsg = "The shcema tag is removed from UNDP file -- " + filePath;
+			loggMsg = "--- The shcema tag is removed from UNDP file -- " + filePath;
 			System.out.println(loggMsg);
 			ActivityLogger.logActivity(loggMsg);
 		}
@@ -700,301 +701,6 @@ public class AppCommons {
 	}
 
 	/**
-	 * Moving the file to uploaded folder after processing them
-	 * 
-	 * @param folder: received or success
-	 * @param org:    undp or unicef or unops
-	 */
-	public static void moveFilesToUploadedFolder(String folder, String org) {
-
-		if (config.configSetup()) {
-
-			String sDir = AppConfig.getResponseFileSrcPath() + folder + "\\" + org + "\\";
-			File srcDir = new File(sDir);
-
-			String dDir = AppConfig.getResponseFileSrcPath() + folder + "\\" + org + "\\" + "uploaded" + "\\";
-			File destDir = new File(dDir);
-
-			if (srcDir.exists()) {
-
-				if (!destDir.exists()) {
-
-					destDir.mkdirs();
-				}
-
-				// Get list of the files inside the directory
-				File[] listOfFiles = srcDir.listFiles();
-				if (listOfFiles != null && listOfFiles.length > 0) {
-
-					for (File file : listOfFiles) {
-
-						if (AppCommons.isXMLFile(file.getName())) {
-
-							try {
-								// moving the file to uploaded folder
-								AppCommons.moveFile(false, sDir + file.getName(), dDir + file.getName());
-
-							} catch (Exception exp) {
-								errorMsg = "<File Movement Error>" + exp.getClass().getSimpleName() + "->"
-										+ exp.getCause() + "->" + exp.getMessage();
-								System.out.println(errorMsg);
-								ActivityLogger.logActivity(errorMsg);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Getting the rejected and warning files and moving them to the related pending
-	 * folder
-	 * 
-	 * @param folder
-	 * @param org
-	 */
-	public static void rejectedOrWarningFileAdvanceSearch(String folder, String org) {
-
-		if (config.configSetup()) {
-
-			// Path of today pending folder
-			String pendingFilesPath = getTodayPendingFolder(org);
-
-			// If the method is called on received folder
-			if (folder.equals("received")) {
-
-				// Get today (processed) files from received folder
-				String fileLevelSrc = getTodaysResponseFilesFolder(org);
-				File fileLevelSrcDir = new File(fileLevelSrc);
-
-				// Finding rejected or warning payment files
-				HashMap<String, Integer> rejectedAndWarningPaymentFiles = AIBSwiftPaymentFileRobot
-						.getRejectedAndWarningPaymentFilesProperties(org);
-
-				for (Map.Entry<String, Integer> rejectedFile : rejectedAndWarningPaymentFiles.entrySet()) {
-
-					int xmlIndex = rejectedFile.getKey().lastIndexOf(".xml") + (".xml").length();
-					String fileName = rejectedFile.getKey().substring(0, xmlIndex);
-
-					// Moving the file to today's pending folder to trace the pendings (used for
-					// safety purpose)
-					if (fileLevelSrcDir.exists()) {
-
-						if (AppCommons.isXMLFile(fileName)) {
-
-							try {
-								// moving the file back to the source path
-								AppCommons.moveFile(false, fileLevelSrc + "\\" + fileName,
-										pendingFilesPath + "\\" + fileName);
-
-							} catch (Exception exp) {
-
-								errorMsg = "<File Movement Error>" + exp.getClass().getSimpleName() + "->"
-										+ exp.getCause() + "->" + exp.getMessage();
-								System.out.println(errorMsg);
-								ActivityLogger.logActivity(errorMsg);
-							}
-						}
-					}
-				}
-
-			}
-
-			// If the method is called on success files
-			if (folder.equals("success")) {
-				// copying the rejected and warning ack file
-				String sDir = getTodayPendingFolder(org);
-				File srcDir = new File(sDir);
-
-				if (srcDir.exists()) {
-					// Get list of the files inside the directory
-					File[] listOfFiles = srcDir.listFiles();
-					if (listOfFiles != null) {
-						for (File file : listOfFiles) {
-							if (AppCommons.isXMLFile(file.getName())) {
-								// If it is ack files then,
-								if (!file.getName().contains("FileLevel.xml")) {
-
-									try {
-
-										// moving the file back to the source path
-										AppCommons.moveFile(false, file.toString(),
-												pendingFilesPath + "\\" + file.getName());
-									} catch (Exception exp) {
-
-										errorMsg = "<File Content and Directory Error>" + exp.getClass().getSimpleName()
-												+ "->" + exp.getCause() + "->" + exp.getMessage();
-										System.out.println(errorMsg);
-										ActivityLogger.logActivity(errorMsg);
-
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Double checking the rejected and warning files inside pending folder and in
-	 * case of match based on database, send them to Swift same as other complete
-	 * and matched file to avoid business process delay and customer complaints.
-	 * Only the matched file will be send to avoid delay in ACK file. The new or
-	 * unmatched file will remain in pending status in pending folder and will be
-	 * rechecked in next software process.
-	 * 
-	 * @param org
-	 */
-	public static void rectifyingWarningAndRejectedFiles(String org) {
-
-		if (config.configSetup()) {
-
-			String srcPath = getTodayPendingFolder(org);
-			String destPath;
-			File srcDir = new File(srcPath);
-
-			if (srcDir.exists()) {
-				File[] filesList = srcDir.listFiles();
-				ResponseFile responseFile;
-				CustomPaymentFile cpf;
-				for (File file : filesList) {
-
-					// check its file level whether exist or not
-					responseFile = getFileProperties(file.toString());
-					cpf = DBServiceImpl.getPaymentFile(responseFile.getOrgnlMsgId());
-					// If there is a record with its reference in database
-					if (cpf != null && cpf.getBatchFileName() != null) {
-						// If it is stored in database in case of FileLevel or its FileLevel exist in
-						// database in case it is ACK file
-						if (cpf.getBatchFileName().equals(file.getName())
-								|| (cpf.getAckMergedFileName().contains(file.getName())
-										&& cpf.getBatchFileName() != null)) {
-
-							if (AppCommons.isXMLFile(file.getName())) {
-
-								try {
-									// If it is FileLeve then move it back to the source path
-									if (file.getName().contains("FileLevel")) {
-										destPath = getTodaysResponseFilesFolder(org);
-										File dDir = new File(destPath);
-
-										if (!dDir.exists()) {
-											if (dDir.mkdirs()) {
-												loggMsg = "<Creating Folder For File Level> A folder " + destPath
-														+ " created sccessfully";
-												System.out.println(loggMsg);
-												ActivityLogger.logActivity(loggMsg);
-											} else {
-												loggMsg = "<Creating Folder For File Level> Failed to create folder "
-														+ destPath;
-												System.out.println(loggMsg);
-												ActivityLogger.logActivity(loggMsg);
-											}
-										}
-
-										AppCommons.moveFile(false, srcPath + "\\" + file.getName(),
-												destPath + "\\" + file.getName());
-									}
-									// If it is ACK file
-									else {
-										destPath = getTodaysTransactionFilesMergedFolder(org);
-										File dDir = new File(destPath);
-										if (!dDir.exists()) {
-											if (dDir.mkdirs()) {
-												loggMsg = "<Creating Folder For Merged ACK Files> A folder " + destPath
-														+ " created sccessfully";
-												System.out.println(loggMsg);
-												ActivityLogger.logActivity(loggMsg);
-
-											} else {
-												loggMsg = "<Creating Folder For Merged ACK Files> Failed to create folder "
-														+ destPath;
-												System.out.println(loggMsg);
-												ActivityLogger.logActivity(loggMsg);
-											}
-
-										}
-										AppCommons.moveFile(false, srcPath + "\\" + file.getName(),
-												destPath + "\\" + file.getName());
-									}
-
-								} catch (Exception exp) {
-
-									errorMsg = "<File Movement Error>" + exp.getClass().getSimpleName() + "->"
-											+ exp.getCause() + "->" + exp.getMessage();
-									System.out.println(errorMsg);
-									ActivityLogger.logActivity(errorMsg);
-								}
-							}
-						}
-
-					}
-
-				}
-			} else {
-				errorMsg = "<Pending Paht not Found> There is no pending folder with " + srcPath + " name";
-				System.out.println(errorMsg);
-				ActivityLogger.logActivity(errorMsg);
-			}
-		}
-
-	}
-
-	/**
-	 * Moving the rejected or warning files (the files which is new and their
-	 * FileLevel doesn't exist). These files will be checked in next trail alongside
-	 * with other new files tomorrow
-	 * 
-	 * @param org
-	 */
-	public static void moveRejectedOrWarningFilesBackToSwift(String org) {
-
-		// Copying the file level rejected/warning/pending files back to the source
-		// folder to be processed next day
-		String srcPath = getTodayPendingFolder(org);
-		File pendingFilesDir = new File(srcPath);
-		String destPath;
-		if (pendingFilesDir.exists()) { // Get list of the files inside the directory
-			File[] listOfFiles = pendingFilesDir.listFiles();
-
-			if (listOfFiles != null) {
-				for (File file : listOfFiles) {
-					if (AppCommons.isXMLFile(file.getName())) {
-						if (file.getName().contains("FileLevel")) {
-							destPath = AppConfig.getResponseFileSrcPath() + "received\\" + org + "\\";
-						} else {
-							destPath = AppConfig.getResponseFileSrcPath() + "success\\" + org + "\\";
-						}
-						try {
-
-							String fileContent = readFileAllContent(file.toString());
-							FileWriter fileWriterPath = new FileWriter(destPath + "\\" + file.getName());
-							BufferedWriter bufferedWriter = new BufferedWriter(fileWriterPath);
-							bufferedWriter.write(fileContent);
-							bufferedWriter.close();
-
-						} catch (Exception exp) {
-
-							errorMsg = "<File Content and Directory Error>" + exp.getClass().getSimpleName() + "->"
-									+ exp.getCause() + "->" + exp.getMessage();
-							System.out.println(errorMsg);
-							ActivityLogger.logActivity(errorMsg);
-
-						}
-					}
-				}
-			} else {
-				loggMsg = "<No Pending or Rejected File> there is no pending or rejected file.";
-				System.out.println(errorMsg);
-				ActivityLogger.logActivity(errorMsg);
-			}
-		}
-	}
-
-	/**
 	 * this method creates a folder for today's pending payment and transaction
 	 * files
 	 * 
@@ -1125,8 +831,306 @@ public class AppCommons {
 	}
 
 	/**
-	 * This method is used to collect the matched file (FileLevel + ACK file) in one
-	 * collection
+	 * Moving the file to uploaded folder after processing them
+	 * 
+	 * @param folder: received or success
+	 * @param org:    undp or unicef or unops
+	 */
+	public static void moveFilesToUploadedFolder(String folder, String org) {
+
+		if (config.configSetup()) {
+
+			String sDir = AppConfig.getResponseFileSrcPath() + folder + "\\" + org + "\\";
+			File srcDir = new File(sDir);
+
+			String dDir = AppConfig.getResponseFileSrcPath() + folder + "\\" + org + "\\" + "uploaded" + "\\";
+			File destDir = new File(dDir);
+
+			if (srcDir.exists()) {
+
+				if (!destDir.exists()) {
+
+					destDir.mkdirs();
+				}
+
+				// Get list of the files inside the directory
+				File[] listOfFiles = srcDir.listFiles();
+				if (listOfFiles != null && listOfFiles.length > 0) {
+
+					for (File file : listOfFiles) {
+
+						if (AppCommons.isXMLFile(file.getName())) {
+
+							try {
+								// moving the file to uploaded folder
+								AppCommons.moveFile(false, sDir + file.getName(), dDir + file.getName());
+
+							} catch (Exception exp) {
+								errorMsg = "<File Movement Error>" + exp.getClass().getSimpleName() + "->"
+										+ exp.getCause() + "->" + exp.getMessage();
+								System.out.println(errorMsg);
+								ActivityLogger.logActivity(errorMsg);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Getting the rejected and warning files and moving them to the related pending
+	 * folder
+	 * 
+	 * @param folder
+	 * @param org
+	 */
+	public static void rejectedOrWarningFileAdvanceSearch(String folder, String org) {
+
+		if (config.configSetup()) {
+
+			// Path of today pending folder
+			String pendingFilesPath = getTodayPendingFolder(org);
+
+			// If the method is called on received folder
+			if (folder.equals("received")) {
+
+				// Get today (processed) files from received folder
+				String fileLevelSrc = getTodaysResponseFilesFolder(org);
+				File fileLevelSrcDir = new File(fileLevelSrc);
+
+				// Finding rejected or warning payment files
+				HashMap<String, Integer> rejectedAndWarningPaymentFiles = AIBSwiftPaymentFileRobot
+						.getRejectedAndWarningPaymentFilesProperties(org);
+
+				for (Map.Entry<String, Integer> rejectedFile : rejectedAndWarningPaymentFiles.entrySet()) {
+
+					int xmlIndex = rejectedFile.getKey().lastIndexOf(".xml") + (".xml").length();
+					String fileName = rejectedFile.getKey().substring(0, xmlIndex);
+
+					// Moving rejected or warning FileLevel to the the pending folder
+					if (fileLevelSrcDir.exists()) {
+
+						if (AppCommons.isXMLFile(fileName)) {
+
+							try {
+								// moving the file back to the source path
+								AppCommons.moveFile(false, fileLevelSrc + "\\" + fileName,
+										pendingFilesPath + "\\" + fileName);
+
+							} catch (Exception exp) {
+
+								errorMsg = "<File Movement Error>" + exp.getClass().getSimpleName() + "->"
+										+ exp.getCause() + "->" + exp.getMessage();
+								System.out.println(errorMsg);
+								ActivityLogger.logActivity(errorMsg);
+							}
+						}
+					}
+				}
+
+			}
+
+			// If the method is called on success files
+			if (folder.equals("success")) {
+				// copying the rejected and warning ack file
+				String sDir = getTodayPendingFolder(org);
+				File srcDir = new File(sDir);
+
+				if (srcDir.exists()) {
+					// Get list of the files inside the directory
+					File[] listOfFiles = srcDir.listFiles();
+					if (listOfFiles != null) {
+						for (File file : listOfFiles) {
+							if (AppCommons.isXMLFile(file.getName())) {
+								// If it is ack files then,
+								if (!file.getName().contains("FileLevel.xml")) {
+
+									try {
+
+										// Moving the ACK file to the pending folder
+										AppCommons.moveFile(false, file.toString(),
+												pendingFilesPath + "\\" + file.getName());
+									} catch (Exception exp) {
+
+										errorMsg = "<File Content and Directory Error>" + exp.getClass().getSimpleName()
+												+ "->" + exp.getCause() + "->" + exp.getMessage();
+										System.out.println(errorMsg);
+										ActivityLogger.logActivity(errorMsg);
+
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Double checking the rejected and warning files collection inside pending
+	 * folder and in case it matches based on its reference in database database,
+	 * send them to Swift same as other file pairs (FileLeve + ACK) to avoid
+	 * business process delay and customer complaints. Only the matched file (any
+	 * FileLevel file and ACK which its FileLevel exist) will be send to avoid delay
+	 * in ACK file. The new or unmatched file will remain in pending status in
+	 * pending folder and will be rechecked in next software process.
+	 * 
+	 * @param org
+	 */
+	public static void rectifyingWarningAndRejectedFiles(String org) {
+
+		if (config.configSetup()) {
+
+			String srcPath = getTodayPendingFolder(org);
+			String destPath;
+			File srcDir = new File(srcPath);
+
+			if (srcDir.exists()) {
+				File[] filesList = srcDir.listFiles();
+				ResponseFile responseFile;
+				CustomPaymentFile cpf;
+				for (File file : filesList) {
+
+					// check its file level whether exist or not
+					responseFile = getFileProperties(file.toString());
+					cpf = DBServiceImpl.getPaymentFile(responseFile.getOrgnlMsgId());
+					// If there is a record with its reference in database
+					if (cpf != null && cpf.getBatchFileName() != null) {
+						// If it is stored in database in case of FileLevel or its FileLevel exist in
+						// database in case it is ACK file
+						if (cpf.getBatchFileName().equals(file.getName())
+								|| (cpf.getAckMergedFileName().contains(file.getName())
+										&& cpf.getBatchFileName() != null)) {
+
+							if (AppCommons.isXMLFile(file.getName())) {
+
+								try {
+									// If it is FileLeve then move it back to the source path
+									// We send all FileLevel and do not check for complete or incomplete
+									if (file.getName().contains("FileLevel")) {
+										destPath = getTodaysResponseFilesFolder(org);
+										File dDir = new File(destPath);
+
+										if (!dDir.exists()) {
+											if (dDir.mkdirs()) {
+												loggMsg = "<Creating Folder For File Level> A folder " + destPath
+														+ " created sccessfully";
+												System.out.println(loggMsg);
+												ActivityLogger.logActivity(loggMsg);
+											} else {
+												loggMsg = "<Creating Folder For File Level> Failed to create folder "
+														+ destPath;
+												System.out.println(loggMsg);
+												ActivityLogger.logActivity(loggMsg);
+											}
+										}
+
+										AppCommons.moveFile(false, srcPath + "\\" + file.getName(),
+												destPath + "\\" + file.getName());
+									}
+									// If it is ACK file
+									// We send only the ACK which its FileLevel exist, others will be moved to
+									// pending folder
+									else {
+										destPath = getTodaysTransactionFilesMergedFolder(org);
+										File dDir = new File(destPath);
+										if (!dDir.exists()) {
+											if (dDir.mkdirs()) {
+												loggMsg = "<Creating Folder For Merged ACK Files> A folder " + destPath
+														+ " created sccessfully";
+												System.out.println(loggMsg);
+												ActivityLogger.logActivity(loggMsg);
+
+											} else {
+												loggMsg = "<Creating Folder For Merged ACK Files> Failed to create folder "
+														+ destPath;
+												System.out.println(loggMsg);
+												ActivityLogger.logActivity(loggMsg);
+											}
+
+										}
+										AppCommons.moveFile(false, srcPath + "\\" + file.getName(),
+												destPath + "\\" + file.getName());
+									}
+
+								} catch (Exception exp) {
+
+									errorMsg = "<File Movement Error>" + exp.getClass().getSimpleName() + "->"
+											+ exp.getCause() + "->" + exp.getMessage();
+									System.out.println(errorMsg);
+									ActivityLogger.logActivity(errorMsg);
+								}
+							}
+						}
+
+					}
+
+				}
+			} else {
+				errorMsg = "<Pending Paht not Found> There is no pending folder with " + srcPath + " name";
+				System.out.println(errorMsg);
+				ActivityLogger.logActivity(errorMsg);
+			}
+		}
+
+	}
+
+	/**
+	 * Moving the rejected or warning files (the files which is new and their
+	 * FileLevel doesn't exist). These files will be checked in next day process
+	 * alongside with other new files.
+	 * 
+	 * @param org
+	 */
+	public static void moveRejectedOrWarningFilesBackToSwift(String org) {
+
+		// Copying the file level rejected/warning/pending files back to the source
+		// folder to be processed next day
+		String srcPath = getTodayPendingFolder(org);
+		File pendingFilesDir = new File(srcPath);
+		String destPath;
+		if (pendingFilesDir.exists()) { // Get list of the files inside the directory
+			File[] listOfFiles = pendingFilesDir.listFiles();
+
+			if (listOfFiles != null) {
+				for (File file : listOfFiles) {
+					if (AppCommons.isXMLFile(file.getName())) {
+						if (file.getName().contains("FileLevel")) {
+							destPath = AppConfig.getResponseFileSrcPath() + "received\\" + org + "\\";
+						} else {
+							destPath = AppConfig.getResponseFileSrcPath() + "success\\" + org + "\\";
+						}
+						try {
+
+							String fileContent = readFileAllContent(file.toString());
+							FileWriter fileWriterPath = new FileWriter(destPath + "\\" + file.getName());
+							BufferedWriter bufferedWriter = new BufferedWriter(fileWriterPath);
+							bufferedWriter.write(fileContent);
+							bufferedWriter.close();
+
+						} catch (Exception exp) {
+
+							errorMsg = "<File Content and Directory Error>" + exp.getClass().getSimpleName() + "->"
+									+ exp.getCause() + "->" + exp.getMessage();
+							System.out.println(errorMsg);
+							ActivityLogger.logActivity(errorMsg);
+
+						}
+					}
+				}
+			} else {
+				loggMsg = "<No Pending or Rejected File> there is no pending or rejected file.";
+				System.out.println(errorMsg);
+				ActivityLogger.logActivity(errorMsg);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to collect the matched file pairs (FileLevel + ACK file)
+	 * in one collection
 	 * 
 	 * @param filesCollection
 	 * @return

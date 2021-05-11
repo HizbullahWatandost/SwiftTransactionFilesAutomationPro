@@ -104,25 +104,21 @@ public class ApplicationMain {
 
 		// Reading Files properties
 		// Reading UNDP file properties
-		System.out.println("UNDP files properties");
 		ArrayList<ResponseFile> undpFileListProperties = FileExtraction.getListOfAllFilesProperties("86154");
-
 		for (ResponseFile file : undpFileListProperties)
 			AppCommons.createTransactionFilesFolder("86154", file.getOrgnlMsgId());
-		// Reading UNICEF file properties
-		System.out.println("UNICEF files properties");
-		ArrayList<ResponseFile> unicefFileListProperties = FileExtraction.getListOfAllFilesProperties("86570");
 
+		// Reading UNICEF file properties
+		ArrayList<ResponseFile> unicefFileListProperties = FileExtraction.getListOfAllFilesProperties("86570");
 		for (ResponseFile file : unicefFileListProperties)
 			AppCommons.createTransactionFilesFolder("86570", file.getOrgnlMsgId());
 
 		// Reading UNOPS customer one file properties
-		System.out.println("UNOPS customer one files properties");
 		ArrayList<ResponseFile> unopsCustOneFileListProperties = FileExtraction.getListOfAllFilesProperties("86702");
 		for (ResponseFile file : unopsCustOneFileListProperties)
 			AppCommons.createTransactionFilesFolder("86702", file.getOrgnlMsgId());
+
 		// Reading UNOPS customer two file properties
-		System.out.println("UNOPS customer two files properties");
 		ArrayList<ResponseFile> unopsCustTwoFileListProperties = FileExtraction.getListOfAllFilesProperties("86754");
 		for (ResponseFile file : unopsCustTwoFileListProperties)
 			AppCommons.createTransactionFilesFolder("86754", file.getOrgnlMsgId());
@@ -489,7 +485,7 @@ public class ApplicationMain {
 
 		ActivityLogger.logActivity(paymentLog);
 
-		// Storing the complete (matched) payment files into database
+		// Storing the file pair (FileLevel + ACK file) into database
 		AIBSwiftPaymentFileRobot.storePaymentFiles(paymentFiles);
 
 		loggMsg = "\n===============================================================================================\n"
@@ -500,15 +496,11 @@ public class ApplicationMain {
 		// Listing UNDP rejected/pending file levels
 		HashMap<String, Integer> UNDPRejectedPayments = AIBSwiftPaymentFileRobot
 				.getRejectedAndWarningPaymentFilesProperties("86154");
-
 		rejectedFiles.add(AppCommons.collectRejectedFiles(UNDPRejectedPayments));
-
 		for (Map.Entry<String, Integer> undpRejectedFile : UNDPRejectedPayments.entrySet()) {
-
 			System.out.println(undpRejectedFile.getKey() + " --> " + undpRejectedFile.getValue());
 			paymentLog += undpRejectedFile.getKey() + " --> " + undpRejectedFile.getValue() + "\n";
 		}
-
 		ActivityLogger.logActivity(paymentLog);
 
 		loggMsg = "\n---***Rejected/Pending UNICEF Payment Files***--";
@@ -519,27 +511,20 @@ public class ApplicationMain {
 		HashMap<String, Integer> UNICEFRejectedPayments = AIBSwiftPaymentFileRobot
 				.getRejectedAndWarningPaymentFilesProperties("86570");
 		rejectedFiles.add(AppCommons.collectRejectedFiles(UNICEFRejectedPayments));
-
 		for (Map.Entry<String, Integer> unicefRejectedFile : UNICEFRejectedPayments.entrySet()) {
-
 			System.out.println(unicefRejectedFile.getKey() + " --> " + unicefRejectedFile.getValue());
 			paymentLog += unicefRejectedFile.getKey() + " --> " + unicefRejectedFile.getValue() + "\n";
 		}
-
 		ActivityLogger.logActivity(paymentLog);
 
 		loggMsg = "\n---***Rejected/Pending UNOPS customer one Payment Files***--";
 		System.out.println(loggMsg);
 		paymentLog = loggMsg + "\n";
-
 		// Listing UNOPS customer one rejected/pending file levels
 		HashMap<String, Integer> UNOPSCustOneRejectedPayments = AIBSwiftPaymentFileRobot
 				.getRejectedAndWarningPaymentFilesProperties("86702");
-
 		rejectedFiles.add(AppCommons.collectRejectedFiles(UNOPSCustOneRejectedPayments));
-
 		for (Map.Entry<String, Integer> unopsCustOneRejectedFile : UNOPSCustOneRejectedPayments.entrySet()) {
-
 			System.out.println(unopsCustOneRejectedFile.getKey() + " --> " + unopsCustOneRejectedFile.getValue());
 			paymentLog += unopsCustOneRejectedFile.getKey() + " --> " + unopsCustOneRejectedFile.getValue() + "\n";
 		}
@@ -548,90 +533,68 @@ public class ApplicationMain {
 		loggMsg = "\n---***Rejected/Pending UNOPS customer two Payment Files***--";
 		System.out.println(loggMsg);
 		paymentLog = loggMsg + "\n";
-
 		// Listing UNOPS customer one rejected/pending file levels
 		HashMap<String, Integer> UNOPSCustTwoRejectedPayments = AIBSwiftPaymentFileRobot
 				.getRejectedAndWarningPaymentFilesProperties("86754");
-
 		rejectedFiles.add(AppCommons.collectRejectedFiles(UNOPSCustTwoRejectedPayments));
 		for (Map.Entry<String, Integer> unopsCustTwoRejectedFile : UNOPSCustTwoRejectedPayments.entrySet()) {
-
 			System.out.println(unopsCustTwoRejectedFile.getKey() + " --> " + unopsCustTwoRejectedFile.getValue());
 			paymentLog += unopsCustTwoRejectedFile.getKey() + " --> " + unopsCustTwoRejectedFile.getValue() + "\n";
 		}
-
 		ActivityLogger.logActivity(paymentLog);
 
 		loggMsg = "\n---***Rejected/Pending UNDP Transaction Files***---";
 		System.out.println(loggMsg);
 		paymentLog = loggMsg + "\n";
-
 		// Listing UNDP rejected/pending ACK levels
 		HashMap<String, Integer> UNDPRejectedTxns = AIBSwiftPaymentFileRobot
 				.getRejectedAndWarningTxnFilesProperties("86154");
-
 		rejectedFiles.add(AppCommons.collectRejectedFiles(UNDPRejectedTxns));
-
 		for (Map.Entry<String, Integer> undpRejectedTxns : UNDPRejectedTxns.entrySet()) {
 
 			System.out.println(undpRejectedTxns.getKey() + " --> " + undpRejectedTxns.getValue());
 			paymentLog += undpRejectedTxns.getKey() + " --> " + undpRejectedTxns.getValue() + "\n";
 		}
-
 		ActivityLogger.logActivity(paymentLog);
 
 		loggMsg = "\n---***Rejected/Pending UNICEF Transaction Files***---";
 		System.out.println(loggMsg);
 		paymentLog = loggMsg + "\n";
-
 		// Listing UNICEF rejected/pending ACK levels
 		HashMap<String, Integer> UNICEFRejectedTxns = AIBSwiftPaymentFileRobot
 				.getRejectedAndWarningTxnFilesProperties("86570");
-
 		rejectedFiles.add(AppCommons.collectRejectedFiles(UNICEFRejectedTxns));
-
 		for (Map.Entry<String, Integer> unicefRejectedTxns : UNICEFRejectedTxns.entrySet()) {
-
 			System.out.println(unicefRejectedTxns.getKey() + " --> " + unicefRejectedTxns.getValue());
 			paymentLog += unicefRejectedTxns.getKey() + " --> " + unicefRejectedTxns.getValue() + "\n";
 		}
-
 		ActivityLogger.logActivity(paymentLog);
 
 		loggMsg = "\n---***Rejected/Pending UNOPS customer one Transaction Files***---";
 		System.out.println(loggMsg);
 		paymentLog = loggMsg + "\n";
-
 		// Listing UNICEF rejected/pending ACK levels
 		HashMap<String, Integer> UNOPSCustOneRejectedTxns = AIBSwiftPaymentFileRobot
 				.getRejectedAndWarningTxnFilesProperties("86702");
-
 		rejectedFiles.add(AppCommons.collectRejectedFiles(UNOPSCustOneRejectedTxns));
-
 		for (Map.Entry<String, Integer> unopsCustOneRejectedTxns : UNOPSCustOneRejectedTxns.entrySet()) {
-
 			System.out.println(unopsCustOneRejectedTxns.getKey() + " --> " + unopsCustOneRejectedTxns.getValue());
 			paymentLog += unopsCustOneRejectedTxns.getKey() + " --> " + unopsCustOneRejectedTxns.getValue() + "\n";
 		}
-
 		ActivityLogger.logActivity(paymentLog);
 
 		loggMsg = "\n---***Rejected/Pending UNOPS customer two Transaction Files***---";
 		System.out.println(loggMsg);
 		paymentLog = loggMsg + "\n";
-
 		// Listing UNICEF rejected/pending ACK levels
 		HashMap<String, Integer> UNOPSCustTwoRejectedTxns = AIBSwiftPaymentFileRobot
 				.getRejectedAndWarningTxnFilesProperties("86754");
-
 		rejectedFiles.add(AppCommons.collectRejectedFiles(UNOPSCustTwoRejectedTxns));
-
 		for (Map.Entry<String, Integer> unopsCustTwoRejectedTxns : UNOPSCustTwoRejectedTxns.entrySet()) {
 			System.out.println(unopsCustTwoRejectedTxns.getKey() + " --> " + unopsCustTwoRejectedTxns.getValue());
 			paymentLog += unopsCustTwoRejectedTxns.getKey() + " --> " + unopsCustTwoRejectedTxns.getValue() + "\n";
 
 		}
-
 		ActivityLogger.logActivity(paymentLog);
 
 		loggMsg = "\n====================================================================================";
@@ -663,8 +626,7 @@ public class ApplicationMain {
 		AppCommons.rejectedOrWarningFileAdvanceSearch("success", "86754");
 
 		// Moving the FileLevel and incomplete warning ACK files to the related folders
-		// to
-		// be send through Swift
+		// to be send through Swift
 		AppCommons.rectifyingWarningAndRejectedFiles("86154");
 		AppCommons.rectifyingWarningAndRejectedFiles("86570");
 		AppCommons.rectifyingWarningAndRejectedFiles("86702");

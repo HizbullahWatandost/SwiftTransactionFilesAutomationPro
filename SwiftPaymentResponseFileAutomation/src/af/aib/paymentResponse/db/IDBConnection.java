@@ -3,7 +3,7 @@ package af.aib.paymentResponse.db;
 /**
  * The interface for DB connect
  * 
- * @author hizwat
+ * @author Hizbullah Watandost
  *
  */
 public interface IDBConnection {

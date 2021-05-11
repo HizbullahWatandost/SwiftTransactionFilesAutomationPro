@@ -6,7 +6,7 @@ import java.sql.Date;
  * CustomPaymentFile model defines a complete row in database which represent a
  * complete (matched) payment files
  * 
- * @author hizwat
+ * @author Hizbullah Watandost
  *
  */
 public class CustomPaymentFile {
@@ -168,9 +168,9 @@ public class CustomPaymentFile {
 	}
 
 	/**
-	 * Method to be used to compare instance of the class Comparing two complete -
-	 * matched payment file Used to detect the duplicate files before inserting to
-	 * database
+	 * Method to be used to compare instances of the class. Comparing two file pair
+	 * (FileLeve + ACK) together - It is Used to detect the duplicate files before
+	 * inserting to database
 	 */
 	@Override
 	public boolean equals(Object o) {

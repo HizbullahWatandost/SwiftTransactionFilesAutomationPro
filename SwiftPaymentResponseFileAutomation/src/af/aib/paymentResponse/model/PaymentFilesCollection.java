@@ -10,6 +10,7 @@ public class PaymentFilesCollection {
 		super();
 	}
 
+	
 	public PaymentFilesCollection(ArrayList<ArrayList<String>> paymentsCollection) {
 		super();
 		this.paymentsCollection = paymentsCollection;

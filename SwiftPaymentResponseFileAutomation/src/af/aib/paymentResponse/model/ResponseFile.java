@@ -3,7 +3,7 @@ package af.aib.paymentResponse.model;
 /**
  * The model class represent the response (File Level) file
  * 
- * @author hizwat
+ * @author Hizbullah Watandost
  *
  */
 public class ResponseFile {

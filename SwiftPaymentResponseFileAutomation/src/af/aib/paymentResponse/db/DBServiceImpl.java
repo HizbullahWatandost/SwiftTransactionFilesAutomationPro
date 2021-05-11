@@ -15,7 +15,7 @@ import af.aib.paymentResponse.model.CustomPaymentFile;
 /**
  * This class is used to handle CRUD operation
  * 
- * @author hizwat
+ * @author Hizbullah Watandost
  *
  */
 public class DBServiceImpl {
@@ -60,13 +60,13 @@ public class DBServiceImpl {
 				prepStmt.setInt(11, (cpf.getNoOfTxn() == cpf.getNoOfScTxn()) ? 1 : 0);
 
 				if (prepStmt.executeUpdate() > 0) {
-					logMsg = "<Storing Payment File> The payment with reference " + cpf.getPaymentRef()
+					logMsg = "<Success Storing Payment File> The payment with reference " + cpf.getPaymentRef()
 							+ " has been saved to database successfully!";
 					System.out.println(logMsg);
 					ActivityLogger.logActivity(logMsg);
 
 				} else {
-					logMsg = "<Storing Payment File> The payment with reference " + cpf.getPaymentRef()
+					logMsg = "<Fail Storing Payment File> The payment with reference " + cpf.getPaymentRef()
 							+ " failed to be saved to database!";
 					System.out.println(logMsg);
 					ActivityLogger.logActivity(logMsg);
@@ -154,7 +154,6 @@ public class DBServiceImpl {
 				prepStmt.setString(3, cpf.getAckMergedFileName());
 				prepStmt.setInt(4, cpf.getNoOfScTxn());
 				prepStmt.setInt(5, cpf.getNoOfPdTxn());
-
 				prepStmt.setString(6, cpf.getInsDate());
 				prepStmt.setInt(7, ((cpf.isBatchFileSent() == true) ? 1 : 0));
 				prepStmt.setInt(8, ((cpf.isAckFileSent() == true) ? 1 : 0));
@@ -165,13 +164,14 @@ public class DBServiceImpl {
 
 				if (prepStmt.executeUpdate() > 0) {
 
-					logMsg = "<Payment File Update> The payment file with reference " + paymentRef
+					logMsg = "<Success Payment File Update> The payment file with reference " + paymentRef
 							+ " has been updated successfully!";
 					System.out.println(logMsg);
 					ActivityLogger.logActivity(logMsg);
 				} else {
 
-					logMsg = "<Payment File Update> The payment  file with referecne " + paymentRef + " update failed!";
+					logMsg = "<Fail Payment File Update> The payment  file with referecne " + paymentRef
+							+ " update failed!";
 					System.out.println(logMsg);
 					ActivityLogger.logActivity(logMsg);
 
@@ -205,12 +205,12 @@ public class DBServiceImpl {
 				PreparedStatement prepStmt = msConn.prepareStatement(q);
 				prepStmt.setString(1, paymentRef);
 				if (prepStmt.executeUpdate() > 0) {
-					logMsg = "<Deleting Payment File> The payment file with reference " + paymentRef
+					logMsg = "<Success Deleting Payment File> The payment file with reference " + paymentRef
 							+ " has been deleted successfully!";
 					System.out.println(logMsg);
 					ActivityLogger.logActivity(logMsg);
 				} else {
-					logMsg = "<Deleting Payment File> The payment file with reference " + paymentRef
+					logMsg = "<Fail Deleting Payment File> The payment file with reference " + paymentRef
 							+ " failed to be deleted!";
 					System.out.println(logMsg);
 					ActivityLogger.logActivity(logMsg);
@@ -231,5 +231,4 @@ public class DBServiceImpl {
 			ActivityLogger.logActivity(errMsg);
 		}
 	}
-
 }

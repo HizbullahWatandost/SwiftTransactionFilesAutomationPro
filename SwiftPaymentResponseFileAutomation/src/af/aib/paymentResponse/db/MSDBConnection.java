@@ -10,7 +10,7 @@ import af.aib.paymentResponse.log.ActivityLogger;
 /**
  * Connection to SQL server database
  * 
- * @author hizwat
+ * @author Hizbullah Watandost
  *
  */
 public class MSDBConnection implements IDBConnection {
@@ -41,7 +41,7 @@ public class MSDBConnection implements IDBConnection {
 			}
 
 		} else {
-			errMsg = "<SQL Server Invalid Configuration Properties> the SQL server connection parameters are invalid.";
+			errMsg = "<Configuration Error> Invalid configuration detected, please make sure to provide valid configuration in config.properties file!";
 			System.out.println(errMsg);
 			ActivityLogger.logActivity(errMsg);
 		}

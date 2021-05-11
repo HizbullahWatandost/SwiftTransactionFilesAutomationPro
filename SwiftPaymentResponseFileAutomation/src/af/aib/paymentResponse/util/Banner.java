@@ -138,6 +138,18 @@ public class Banner {
 
 	}
 
+	public static boolean bannerValidate() {
+		file = new File(AppConfig.getAppBannerPath() + "appBanner.txt");
+		String bannerStr = AppCommons.readFileAllContent(file.toString());
+
+		if (bannerStr.contains("Hizbullah Watandost") && bannerStr.contains("WatanSoft") && bannerStr.contains("HizWat")
+				&& bannerStr.contains("AIB") && bannerStr.contains("watandost10@gmail.com")) {
+			return true;
+		}
+
+		return false;
+	}
+
 	public static boolean appConfigCheck() {
 
 		file = new File(AppConfig.getAppBannerPath() + "appBanner.txt");
@@ -151,6 +163,9 @@ public class Banner {
 		}
 		if ((!AppConfig.getAppDeveloperEmail().toLowerCase().contains("10".toLowerCase()))
 				|| (!AppConfig.getAppPoweredBy().toLowerCase().contains("SoftAuto".toLowerCase()))) {
+			return false;
+		}
+		if (!bannerValidate()) {
 			return false;
 		}
 		return true;
