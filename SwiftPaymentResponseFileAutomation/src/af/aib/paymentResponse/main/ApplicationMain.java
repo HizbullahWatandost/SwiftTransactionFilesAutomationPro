@@ -101,6 +101,8 @@ public class ApplicationMain {
 		FileExtraction.extractResponseFileFromSwift("86754");
 		// Checking for UNOPS customer two duplicate response files
 		FileLoading.duplicateFileHandler("86754");
+		
+
 
 		// Reading Files properties
 		// Reading UNDP file properties
@@ -128,6 +130,12 @@ public class ApplicationMain {
 		AppCommons.createTodayPendingFolder("86570");
 		AppCommons.createTodayPendingFolder("86702");
 		AppCommons.createTodayPendingFolder("86754");
+		
+		// Creating merged folders
+		AppCommons.createFolderForMergedTransactionFiles("86154");
+		AppCommons.createFolderForMergedTransactionFiles("86570");
+		AppCommons.createFolderForMergedTransactionFiles("86702");
+		AppCommons.createFolderForMergedTransactionFiles("86754");
 
 		// Extracting UNDP transaction files
 		FileExtraction.extractTransactionFilesFromSwift("86154");
