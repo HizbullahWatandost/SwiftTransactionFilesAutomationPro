@@ -22,7 +22,7 @@ import af.aib.paymentResponse.model.RejectedPaymentFile;
 import af.aib.paymentResponse.model.ResponseFile;
 import af.aib.paymentResponse.robot.AIBSwiftPaymentFileRobot;
 import af.aib.paymentResponse.util.AppCommons;
-import af.aib.paymentResponse.util.Banner;
+import af.aib.paymentResponse.util.CombinerAutoBanner;
 
 /**
  * This class the main class which runs the application and other methods are
@@ -73,8 +73,7 @@ public class ApplicationMain {
 				+ AppCommons.getCurrentDateTime() + " <<<>>> ####################";
 		System.out.println(loggMsg);
 		ActivityLogger.logActivity(loggMsg);
-
-		Banner.printBanner();
+		CombinerAutoBanner.printBanner();
 
 		loggMsg = "<<<<< Start of Fetching the Swift payment response files from Swift Server >>>>>";
 		System.out.println(loggMsg);

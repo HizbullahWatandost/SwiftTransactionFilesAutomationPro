@@ -12,7 +12,7 @@ import af.aib.paymentResponse.config.AppConfig;
 import af.aib.paymentResponse.log.ActivityLogger;
 import af.aib.paymentResponse.model.ResponseFile;
 import af.aib.paymentResponse.util.AppCommons;
-import af.aib.paymentResponse.util.Banner;
+import af.aib.paymentResponse.util.CombinerAutoBanner;
 
 /**
  * This class is used to extract files from source directory (swift) to the
@@ -103,7 +103,7 @@ public class FileExtraction {
 
 		ArrayList<ResponseFile> output = new ArrayList<ResponseFile>();
 
-		if (config.configSetup() && Banner.appConfigCheck()) {
+		if (config.configSetup() && CombinerAutoBanner.appConfigCheck()) {
 
 			String dir = AppCommons.getTodaysResponseFilesFolder(org);
 			File srcDir = new File(dir);

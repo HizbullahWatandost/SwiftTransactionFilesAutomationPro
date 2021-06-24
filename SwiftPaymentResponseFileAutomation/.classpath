@@ -7,12 +7,12 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="D:/Software/java related developments/java plugins and libraries/jaxb required jar files/javax-activation/javax.activation-api-1.2.0.jar"/>
-	<classpathentry kind="lib" path="D:/Software/java related developments/java plugins and libraries/jaxb required jar files/jaxb-core/istack-commons-runtime-3.0.5.jar"/>
-	<classpathentry kind="lib" path="D:/Software/java related developments/java plugins and libraries/jaxb required jar files/jaxb-core/jaxb-api-2.3.0.jar"/>
-	<classpathentry kind="lib" path="D:/Software/java related developments/java plugins and libraries/jaxb required jar files/jaxb-core/jaxb-core-2.3.0.jar"/>
-	<classpathentry kind="lib" path="D:/Software/java related developments/java plugins and libraries/jaxb required jar files/jaxb-core/txw2-2.3.0.jar"/>
-	<classpathentry kind="lib" path="D:/Software/java related developments/java plugins and libraries/jaxb required jar files/jaxb-impl/jaxb-impl-2.3.0.jar"/>
-	<classpathentry kind="lib" path="D:/Software/java related developments/java plugins and libraries/SQL Server Database JDBC jar files/sql server jdbc_8.2.0.0_enu/sqljdbc_8.2/enu/mssql-jdbc-8.2.0.jre11.jar"/>
+	<classpathentry kind="lib" path="E:/Software/java related developments/java plugins and libraries/javax-activation/javax.activation-api-1.2.0.jar"/>
+	<classpathentry kind="lib" path="E:/Software/java related developments/java plugins and libraries/jaxb-core/istack-commons-runtime-3.0.5.jar"/>
+	<classpathentry kind="lib" path="E:/Software/java related developments/java plugins and libraries/jaxb-core/jaxb-api-2.3.0.jar"/>
+	<classpathentry kind="lib" path="E:/Software/java related developments/java plugins and libraries/jaxb-core/jaxb-core-2.3.0.jar"/>
+	<classpathentry kind="lib" path="E:/Software/java related developments/java plugins and libraries/jaxb-core/txw2-2.3.0.jar"/>
+	<classpathentry kind="lib" path="E:/Software/java related developments/java plugins and libraries/jaxb-impl/jaxb-impl-2.3.0.jar"/>
+	<classpathentry kind="lib" path="E:/Software/java related developments/java plugins and libraries/mssql-jdbc-8.2.0.jre11.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

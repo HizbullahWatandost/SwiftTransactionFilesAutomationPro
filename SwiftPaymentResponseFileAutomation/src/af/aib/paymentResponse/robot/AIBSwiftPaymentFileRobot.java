@@ -14,7 +14,7 @@ import af.aib.paymentResponse.model.RejectedPaymentFile;
 import af.aib.paymentResponse.model.ResponseFile;
 import af.aib.paymentResponse.model.TransactionFile;
 import af.aib.paymentResponse.util.AppCommons;
-import af.aib.paymentResponse.util.Banner;
+import af.aib.paymentResponse.util.CombinerAutoBanner;
 
 /**
  * This class just work like a robot which checks which payments file and ACK
@@ -50,7 +50,7 @@ public class AIBSwiftPaymentFileRobot {
 		// It stores no of payments in key:value pair
 		HashMap<String, Integer> noOfPaymentsInFile = new HashMap<String, Integer>();
 
-		if (config.configSetup() && Banner.appConfigCheck()) {
+		if (config.configSetup() && CombinerAutoBanner.appConfigCheck()) {
 
 			String dir = AppCommons.getTodaysResponseFilesFolder(org);
 			File srcDir = new File(dir);

@@ -5,7 +5,7 @@ import java.io.File;
 import af.aib.paymentResponse.config.AppConfig;
 import af.aib.paymentResponse.log.ActivityLogger;
 
-public class Banner {
+public class CombinerAutoBanner {
 
 	private String softwareName, SoftwareVersion, ownerCompany, developerName, developerEmail, poweredBy;
 
@@ -17,11 +17,11 @@ public class Banner {
 	private static String loggMsg = "";
 	private static File file = null;
 
-	public Banner() {
+	public CombinerAutoBanner() {
 		super();
 	}
 
-	public Banner(String softwareName, String softwareVersion, String ownerCompany, String developerName,
+	public CombinerAutoBanner(String softwareName, String softwareVersion, String ownerCompany, String developerName,
 			String developerEmail, String poweredBy) {
 		super();
 		this.softwareName = softwareName;
@@ -85,7 +85,7 @@ public class Banner {
 	}
 
 	public static void setBannerFileName(String bannerFileName) {
-		Banner.bannerFileName = bannerFileName;
+		CombinerAutoBanner.bannerFileName = bannerFileName;
 	}
 
 	public static ClassLoader getBannerClassLoader() {
@@ -93,7 +93,7 @@ public class Banner {
 	}
 
 	public static void setBannerClassLoader(ClassLoader bannerClassLoader) {
-		Banner.bannerClassLoader = bannerClassLoader;
+		CombinerAutoBanner.bannerClassLoader = bannerClassLoader;
 	}
 
 	public static AppConfig getConfig() {
@@ -101,7 +101,7 @@ public class Banner {
 	}
 
 	public static void setConfig(AppConfig config) {
-		Banner.config = config;
+		CombinerAutoBanner.config = config;
 	}
 
 	public static String getLoggMsg() {
@@ -109,7 +109,7 @@ public class Banner {
 	}
 
 	public static void setLoggMsg(String loggMsg) {
-		Banner.loggMsg = loggMsg;
+		CombinerAutoBanner.loggMsg = loggMsg;
 	}
 
 	public static File getFile() {
@@ -117,7 +117,7 @@ public class Banner {
 	}
 
 	public static void setFile(File file) {
-		Banner.file = file;
+		CombinerAutoBanner.file = file;
 	}
 
 	public static void printBanner() {

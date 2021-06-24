@@ -6,12 +6,12 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import af.aib.paymentResponse.log.ActivityLogger;
-import af.aib.paymentResponse.util.Banner;
+import af.aib.paymentResponse.util.CombinerAutoBanner;
 
 /**
- * The Config class which read the contents of application config file. The
- * config file contains the app configuration details i.e. the source input and
- * output path and other configuraiton detials
+ * The AppConfig class which read the contents of application configuration file. The
+ * configuration file contains the application's configuration details i.e. the source input and
+ * output path and other configuration details.
  * 
  * @author Hizbullah Watandost
  */
@@ -31,7 +31,6 @@ public class AppConfig {
 	 * 
 	 * @return : true if the configuration is OK, else false in case of invalid
 	 *         configuration
-	 * @throws InterruptedException
 	 */
 	public boolean configSetup() {
 
@@ -42,11 +41,11 @@ public class AppConfig {
 			appConfigStream = getClass().getClassLoader().getResourceAsStream(fileName);
 			prop.load(appConfigStream);
 
-			if (Banner.appConfigCheck()) {
+			if (CombinerAutoBanner.appConfigCheck()) {
 				config = true;
 			}
 
-			if (Banner.bannerValidate()) {
+			if (CombinerAutoBanner.bannerValidate()) {
 				config = true;
 			}
 
@@ -67,7 +66,7 @@ public class AppConfig {
 			ActivityLogger.logActivity(errorMsg);
 		}
 
-		if (!Banner.bannerValidate()) {
+		if (!CombinerAutoBanner.bannerValidate()) {
 			errorMsg = "<Configuration Error> Invalid app configuration detected!!!";
 			System.out.println(errorMsg);
 			ActivityLogger.logActivity(errorMsg);
