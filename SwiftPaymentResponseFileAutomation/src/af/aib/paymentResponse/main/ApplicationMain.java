@@ -1,18 +1,12 @@
 package af.aib.paymentResponse.main;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import af.aib.paymentResponse.config.AppConfig;
 import af.aib.paymentResponse.config.PathsConfig;
-import af.aib.paymentResponse.db.DBServiceImpl;
-import af.aib.paymentResponse.db.MSDBConnection;
 import af.aib.paymentResponse.etl.FileExtraction;
 import af.aib.paymentResponse.etl.FileLoading;
 import af.aib.paymentResponse.etl.FileTransformationAndMerging;
