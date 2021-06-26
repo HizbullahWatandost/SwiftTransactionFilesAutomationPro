@@ -30,7 +30,5 @@ public class PaymentFilesCollection {
 				+ getPaymentsCollection() + ", getClass()=" + getClass() + ", hashCode()=" + hashCode()
 				+ ", toString()=" + super.toString() + "]";
 	}
-	
-	
 
 }
